@@ -1,6 +1,8 @@
+package Data;
+
 import java.io.*;
 
-public class TestClass implements IData<TestClass>{
+public class TestClass implements IData<TestClass> {
     private String meno;
     private String priezvisko;
     private int menoValidCharacters;
@@ -16,7 +18,7 @@ public class TestClass implements IData<TestClass>{
         this.id = 0;
         menoValidCharacters = 0;
         priezviskoValidCharacters = 0;
-        //this.navvstevy = new TestNavstevaClass[5];
+        //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     public TestClass(String meno, String priezvisko, int id) {
         this.meno = meno;
@@ -24,7 +26,7 @@ public class TestClass implements IData<TestClass>{
         this.id = id;
         menoValidCharacters = meno.length();
         priezviskoValidCharacters = priezvisko.length();
-        //this.navvstevy = new TestNavstevaClass[5];
+        //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     @Override
     public boolean ownEquals(TestClass data) {

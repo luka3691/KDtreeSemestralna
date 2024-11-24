@@ -1,15 +1,23 @@
-import java.io.*;
-import java.util.Random;
+package Hash;
 
-public class HeapFile<T extends IData<T>> {
+import Heap.Block;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+
+public class ExtendibleHash<T extends IDataWithHash<T>> {
+    private int globalDepth;
     private int blockFactor;
     private int velkostCluster;
     private int adresaNaPrvyVolnyBlok; // toto neukazuje na koniec suboru
     private int adresaNaPrvyCiastocneVolnyBlok;
+    private Directory directory;
     private RandomAccessFile subor;
     private RandomAccessFile riadiaceData;
     //velkostClustra == velkostNajmensejAlokovanejJednotky
-    public HeapFile(int velkostClustra, String suborName, String suborRiadiace, T insanciaGenerickej) {
+    public ExtendibleHash(int velkostClustra, String suborName, String suborRiadiace, T insanciaGenerickej) {
         //this.blockFactor = blockFactor; // vypocitat
         try {
             this.subor = new RandomAccessFile(suborName, "rw"); // uz su
@@ -24,6 +32,8 @@ public class HeapFile<T extends IData<T>> {
             } else {
                 this.readRiadiaceData();
             }
+            this.globalDepth = 1;
+            this.directory = new Directory(this.globalDepth);
         } catch (IOException ex) {
 
         }
@@ -54,7 +64,7 @@ public class HeapFile<T extends IData<T>> {
                 this.subor.seek(getAdresaBloku(adresaNaPrvyCiastocneVolnyBlok));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);
-                Block<T> readBlock = new Block<>(blok, blockFactor, data);
+                BlockWithHash readBlock = new BlockWithHash(blok, blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = this.adresaNaPrvyCiastocneVolnyBlok;
                 if (jePlny) {
@@ -68,7 +78,7 @@ public class HeapFile<T extends IData<T>> {
                 this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
                 byte[] blok = new byte[velkostCluster];
                 System.out.println(blockFactor);
-                Block<T> readBlock = new Block<>(blockFactor, data);
+                BlockWithHash readBlock = new BlockWithHash(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = this.adresaNaPrvyVolnyBlok;
                 this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
@@ -91,7 +101,7 @@ public class HeapFile<T extends IData<T>> {
                 this.subor.seek(this.subor.length());
                 byte[] blok = new byte[velkostCluster];
                 System.out.println(blockFactor);
-                Block<T> readBlock = new Block<>(blockFactor, data);
+                BlockWithHash<T> readBlock = new BlockWithHash<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 readBlock.setPredchadazajuciBlock(adresaNaPredchadzajuci);
                 readBlock.setNextVolnyBlock(this.adresaNaPrvyCiastocneVolnyBlok);
@@ -111,6 +121,48 @@ public class HeapFile<T extends IData<T>> {
 
         }
     return -1;
+    }
+
+    public void insert(T record, int bucketSize) {
+        BitSet hash = record.getHash();
+        BitSet prefix = hash.get(0, globalDepth);
+        Bucket bucket = directory.getBucket(prefix);
+
+        if (bucket.isFull(bucketSize)) {
+            if (bucket.getLocalDepth() == globalDepth) {
+                directory.doubleDirectory();
+            }
+            splitBucket(bucket, prefix);
+            insert(record, bucketSize);  // Retry insertion after splitting
+        } else {
+            bucket.addRecord(record);
+        }
+    }
+
+    private void splitBucket(Bucket<T> bucket, BitSet prefix) {
+        int localDepth = bucket.getLocalDepth();
+        bucket.incrementDepth();
+
+        Bucket<T> newBucket = new Bucket<>(localDepth + 1);
+        List<T> recordsToRedistribute = bucket.getRecords();
+        bucket.clearRecords();
+
+        for (T record : recordsToRedistribute) {
+            BitSet hash = record.getHash();
+            BitSet newPrefix = hash.get(0, localDepth + 1);
+            if (newPrefix.equals(prefix)) {
+                bucket.addRecord(record);
+            } else {
+                newBucket.addRecord(record);
+            }
+        }
+
+        // Update directory pointers
+        this.directory.updateBucketMapping(prefix, bucket);
+
+        BitSet newPrefix = (BitSet) prefix.clone();
+        newPrefix.set(localDepth); // Flip the next significant bit
+        this.directory.updateBucketMapping(newPrefix, newBucket);
     }
     private int getPocetBlokov() {
         try {
@@ -135,7 +187,7 @@ public class HeapFile<T extends IData<T>> {
             this.subor.seek(getAdresaBloku(adresaBloku));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
-            Block<T> readBlock = new Block<>(blok, blockFactor, data);
+            BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, data);
             int cisloRecordu = readBlock.findRecord(data);
             if (cisloRecordu == -1) {
                 System.out.println("Error");
@@ -163,7 +215,7 @@ public class HeapFile<T extends IData<T>> {
                                 this.subor.seek(getAdresaBloku(aktualnaAdresa));
                                 blok = new byte[velkostCluster];
                                 this.subor.read(blok);
-                                readBlock = new Block<>(blok, blockFactor, data);
+                                readBlock = new BlockWithHash<>(blok, blockFactor, data);
                             }
                         }
                     } else {
@@ -193,7 +245,7 @@ public class HeapFile<T extends IData<T>> {
     }
 
     //toto sa pouziva len ked sa vymaze
-    private void vlozDoZretazenia(Block<T> readBlock, int adresaBloku, int adresaNaUzZretazenyBlok, T data) throws IOException {
+    private void vlozDoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, int adresaNaUzZretazenyBlok, T data) throws IOException {
         readBlock.setNextVolnyBlock(adresaNaUzZretazenyBlok); // zapiseme iba dalsi volny blok kedze predosli neexistuje (ja som najnovsi)
         readBlock.setPredchadazajuciBlock(0);
         this.subor.seek(getAdresaBloku(adresaBloku));
@@ -202,7 +254,7 @@ public class HeapFile<T extends IData<T>> {
             this.subor.seek(getAdresaBloku(adresaNaUzZretazenyBlok));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
-            Block<T> dalsiVZretazeni = new Block<>(blok, blockFactor, data);
+            BlockWithHash<T> dalsiVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
             dalsiVZretazeni.setPredchadazajuciBlock(adresaBloku); // zapiseme adresu na vkladany blok
             this.subor.seek(getAdresaBloku(adresaNaUzZretazenyBlok));
             this.subor.write(padding(dalsiVZretazeni.toByteArray()));
@@ -211,12 +263,12 @@ public class HeapFile<T extends IData<T>> {
     }
 
     //toto sa pouziva iba ked je plny block
-    private void odoberZoZretazenia(Block<T> readBlock, int adresaBloku, T data) throws IOException {
+    private void odoberZoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, T data) throws IOException {
         if (readBlock.getPredchadazajuciBlock() != 0) {
             this.subor.seek(getAdresaBloku(readBlock.getPredchadazajuciBlock()));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
-            Block<T> predchadzajuciVZretazeni = new Block<>(blok, blockFactor, data);
+            BlockWithHash<T> predchadzajuciVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
             predchadzajuciVZretazeni.setNextVolnyBlock(readBlock.getNextVolnyBlock());
             this.subor.seek(getAdresaBloku(readBlock.getPredchadazajuciBlock()));
             this.subor.write(padding(predchadzajuciVZretazeni.toByteArray()));
@@ -225,7 +277,7 @@ public class HeapFile<T extends IData<T>> {
             this.subor.seek(getAdresaBloku(readBlock.getNextVolnyBlock()));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
-            Block<T> dalsiVZretazeni = new Block<>(blok, blockFactor, data);
+            BlockWithHash<T> dalsiVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
 
             dalsiVZretazeni.setPredchadazajuciBlock(readBlock.getPredchadazajuciBlock());
             this.subor.seek(getAdresaBloku(readBlock.getNextVolnyBlock()));
@@ -253,7 +305,7 @@ public class HeapFile<T extends IData<T>> {
             this.subor.seek(getAdresaBloku(adresaBloku));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
-            Block<T> readBlock = new Block<>(blok, blockFactor, dataSKlucom);
+            BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, dataSKlucom);
             for (T data : readBlock.getRecords()) {
                 if (dataSKlucom.ownEquals(data)) {
                     return data;
