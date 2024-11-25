@@ -89,22 +89,14 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 }
                 this.subor.seek(getAdresaBloku(adresaNaVratenie));
                 this.subor.write(padding(readBlock.toByteArray()));
-                this.adresaNaPrvyVolnyBlok++;
                 return adresaNaVratenie;
             } else {
-                int adresaNaPredchadzajuci;
-                if (this.subor.length() == 0) {
-                    adresaNaPredchadzajuci = 0;
-                } else {
-                    adresaNaPredchadzajuci = this.getposlednaAdresaBloku();
-                }
+
                 this.subor.seek(this.subor.length());
                 byte[] blok = new byte[velkostCluster];
                 System.out.println(blockFactor);
                 BlockWithHash<T> readBlock = new BlockWithHash<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
-                readBlock.setPredchadazajuciBlock(adresaNaPredchadzajuci);
-                readBlock.setNextVolnyBlock(this.adresaNaPrvyCiastocneVolnyBlok);
                 adresaNaVratenie = getposlednaAdresaBloku()+1;
                 if (!jePlny) {
                     this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
