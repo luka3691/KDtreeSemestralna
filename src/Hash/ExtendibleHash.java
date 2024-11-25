@@ -1,9 +1,6 @@
 package Hash;
 
-import Heap.Block;
-
 import java.io.*;
-import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -29,10 +26,11 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 blockFactor = Math.floorDiv(velkostClustra - Integer.BYTES*3, velkostVkladanychDat);
                 this.adresaNaPrvyVolnyBlok = 0;
                 this.adresaNaPrvyCiastocneVolnyBlok = 0;
+                this.globalDepth = 1;
             } else {
                 this.readRiadiaceData();
             }
-            this.globalDepth = 1;
+
             this.directory = new Directory(this.globalDepth);
         } catch (IOException ex) {
 
@@ -54,7 +52,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
 
         }
     }
-
+/*
     public int insert(T data) {
         //vrati mi adresu bloku kde sa data nachadzaju
         try {
@@ -101,55 +99,79 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.subor.write(padding(readBlock.toByteArray()));
                 return adresaNaVratenie;
             }
-            /*
+
             this.subor.seek(this.subor.length());
-            this.subor.write(data.toByteArray());*/
+            this.subor.write(data.toByteArray());
         }catch (IOException ex) {
 
         }
     return -1;
     }
-
-    public void insert(T record, int bucketSize) {
-        BitSet hash = record.getHash();
-        BitSet prefix = hash.get(0, globalDepth);
-        Bucket bucket = directory.getBucket(prefix);
-
-        if (bucket.isFull(bucketSize)) {
-            if (bucket.getLocalDepth() == globalDepth) {
-                directory.doubleDirectory();
+*/
+    public void insert(T record) {
+        try {
+            boolean jeVlozene = false;
+            while (!jeVlozene) {
+                BitSet hash = record.getHash();
+                BitSet prefix = hash.get(0, directory.getGlobalDepth());
+                int adresa = directory.getBlockAddress(prefix);
+                this.subor.seek(getAdresaBloku(adresa));
+                byte[] blok = new byte[velkostCluster];
+                this.subor.read(blok);
+                BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, record);
+                if (readBlock.isFull()) {
+                    if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
+                        directory.doubleDirectory();
+                    }
+                    splitBucket(readBlock, prefix, adresa);
+                    // Retry insertion after splitting
+                } else {
+                    readBlock.insertRecord(record);
+                    this.subor.seek(getAdresaBloku(adresa));
+                    this.subor.write(padding(readBlock.toByteArray()));
+                    jeVlozene = true;
+                }
             }
-            splitBucket(bucket, prefix);
-            insert(record, bucketSize);  // Retry insertion after splitting
-        } else {
-            bucket.addRecord(record);
+
+        }catch (IOException ex) {
+
         }
+
     }
 
-    private void splitBucket(Bucket<T> bucket, BitSet prefix) {
-        int localDepth = bucket.getLocalDepth();
-        bucket.incrementDepth();
+    private void splitBucket(BlockWithHash<T> bucket, BitSet prefix, int adresa) {
+        try {
+            int localDepth = bucket.getLocalDepth();
+            bucket.incrementDepth();
 
-        Bucket<T> newBucket = new Bucket<>(localDepth + 1);
-        List<T> recordsToRedistribute = bucket.getRecords();
-        bucket.clearRecords();
+            BlockWithHash<T> newBucket = new BlockWithHash<T>(blockFactor, localDepth + 1, bucket.getRecords().getFirst().createClass());
+            List<T> recordsToRedistribute = bucket.getRecords();
+            bucket.clearRecords();
 
-        for (T record : recordsToRedistribute) {
-            BitSet hash = record.getHash();
-            BitSet newPrefix = hash.get(0, localDepth + 1);
-            if (newPrefix.equals(prefix)) {
-                bucket.addRecord(record);
-            } else {
-                newBucket.addRecord(record);
+            for (T record : recordsToRedistribute) {
+                BitSet hash = record.getHash();
+                BitSet newPrefix = hash.get(0, localDepth + 1);
+                if (newPrefix.equals(prefix)) {
+                    bucket.insertRecord(record);
+                } else {
+                    newBucket.insertRecord(record);
+                }
             }
+            int adresaNaVratenie = this.getposlednaAdresaBloku()+1;
+            this.subor.seek(getAdresaBloku(adresa));
+            this.subor.write(padding(bucket.toByteArray()));
+
+            // Update directory pointers
+            this.directory.setBlockAddress(prefix, adresa);
+            this.subor.seek(getAdresaBloku(adresaNaVratenie));
+            this.subor.write(padding(newBucket.toByteArray()));
+            BitSet newPrefix = (BitSet) prefix.clone();
+            newPrefix.set(localDepth); // Flip the next significant bit
+            this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
+
+        } catch (IOException ex) {
+
         }
-
-        // Update directory pointers
-        this.directory.updateBucketMapping(prefix, bucket);
-
-        BitSet newPrefix = (BitSet) prefix.clone();
-        newPrefix.set(localDepth); // Flip the next significant bit
-        this.directory.updateBucketMapping(newPrefix, newBucket);
     }
     private int getPocetBlokov() {
         try {
@@ -168,8 +190,8 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     private int getposlednaAdresaBloku() throws IOException {
         return  ((int)this.subor.length() / velkostCluster);
     }
-
-    public boolean delete(int adresaBloku, T data) {
+/*
+    public boolean delete(T data) {
         try {
             this.subor.seek(getAdresaBloku(adresaBloku));
             byte[] blok = new byte[velkostCluster];
@@ -230,7 +252,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         //urobim si cyklus a pozeram valid count a orezavam, musim menit referencie
         //ked mazem a je uplne volny tak zobiem blok, ulozim do neho adresu aktualne volneho prveho bloku a prepisem v heapfile adresu na prvy volny na aktualny
     }
-
+*/
     //toto sa pouziva len ked sa vymaze
     private void vlozDoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, int adresaNaUzZretazenyBlok, T data) throws IOException {
         readBlock.setNextVolnyBlock(adresaNaUzZretazenyBlok); // zapiseme iba dalsi volny blok kedze predosli neexistuje (ja som najnovsi)
@@ -286,10 +308,10 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         }
 
     }
-    public T get(int adresaBloku, T dataSKlucom) {
+    public T get(T dataSKlucom) {
         //vrati data podla adresy
         try {
-            this.subor.seek(getAdresaBloku(adresaBloku));
+            this.subor.seek(getAdresaBloku(this.directory.getBlockAddress(dataSKlucom.getHash())));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
             BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, dataSKlucom);
@@ -328,3 +350,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         return paddedBloc;
     }
 }
+/*V semestrálnej práci je potrebné
+použiť rozšíriteľné hešovanie nevyužívajúce preplňujúci súbor a pod. (používate priame
+hešovanie). Implementujte efektívny manažment prázdnych blokov v súboroch založený na
+ich zreťazení.*/

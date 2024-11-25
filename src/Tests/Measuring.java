@@ -75,7 +75,7 @@ public class Measuring {
 
             }
         }
-        testHeap.close();;
+        testHeap.close();
     }
 
 

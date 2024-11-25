@@ -9,12 +9,13 @@ import java.util.BitSet;
 
 public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHash<T> {
     private int blockFactor;
+    private int localDepth;
     private int pocetValidnych;
     private int nextVolnyBlock;
     private int predchadazajuciBlock;
     private ArrayList<T> records;
 //vytvorim si blok s jednym zaznamom a ostanymi prazndimy
-    public BlockWithHash(int blockFactor, T instanciaTriedy) {
+    public BlockWithHash(int blockFactor,int localDepth, T instanciaTriedy) {
         this.blockFactor = blockFactor;
 
         this.records = new ArrayList<T>(blockFactor);
@@ -24,6 +25,7 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         }
         this.nextVolnyBlock = 0;
         this.predchadazajuciBlock = 0;
+        this.localDepth = localDepth;
     }
     public BlockWithHash(byte[] blockData, int blockFactor, T data) {
         this.blockFactor = blockFactor;
@@ -106,7 +108,9 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     public int getPocetValidnych() {
         return this.pocetValidnych;
     }
-
+    public boolean isFull() {
+        return this.records.size() == this.blockFactor;
+    }
 
     @Override
     public int getSize() {
@@ -139,6 +143,17 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     public void setPredchadazajuciBlock(int predchadazajuciBlock) {
         this.predchadazajuciBlock = predchadazajuciBlock;
     }
+    public int getLocalDepth() {
+        return localDepth;
+    }
+
+    public void incrementDepth() {
+        localDepth++;
+    }
 
 
+    public void clearRecords() {
+        this.records.clear();;
+        this.pocetValidnych = 0;
+    }
 }
