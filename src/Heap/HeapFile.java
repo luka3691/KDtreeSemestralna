@@ -70,7 +70,6 @@ public class HeapFile<T extends IData<T>> {
                 return adresaNaVratenie;
             } else if (adresaNaPrvyVolnyBlok != 0) {
                 this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
-                byte[] blok = new byte[velkostCluster];
                 System.out.println(blockFactor);
                 Block<T> readBlock = new Block<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
@@ -87,7 +86,6 @@ public class HeapFile<T extends IData<T>> {
                 return adresaNaVratenie;
             } else {
                 this.subor.seek(this.subor.length());
-                byte[] blok = new byte[velkostCluster];
                 Block<T> readBlock = new Block<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = getposlednaAdresaBloku()+1;

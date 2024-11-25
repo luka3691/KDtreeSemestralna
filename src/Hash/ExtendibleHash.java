@@ -76,8 +76,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 return adresaNaVratenie;
             } else if (adresaNaPrvyVolnyBlok != 0) {
                 this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
-                byte[] blok = new byte[velkostCluster];
-                System.out.println(blockFactor);
                 BlockWithHash readBlock = new BlockWithHash(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = this.adresaNaPrvyVolnyBlok;
@@ -91,10 +89,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.subor.write(padding(readBlock.toByteArray()));
                 return adresaNaVratenie;
             } else {
-
                 this.subor.seek(this.subor.length());
-                byte[] blok = new byte[velkostCluster];
-                System.out.println(blockFactor);
                 BlockWithHash<T> readBlock = new BlockWithHash<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = getposlednaAdresaBloku()+1;
