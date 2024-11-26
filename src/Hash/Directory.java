@@ -20,7 +20,7 @@ public class Directory {
     private void initializeDirectory(int depth) {
         int size = (int) Math.pow(2, depth);
         for (int i = 0; i < size; i++) {
-            directory.add(0); // Initialize with invalid address (e.g., -1)
+            directory.add(-1); // Initialize with invalid address (e.g., -1)
         }
     }
 

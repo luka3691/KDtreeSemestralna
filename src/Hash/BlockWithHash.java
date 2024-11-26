@@ -69,6 +69,7 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
             hlpOutStream.writeInt(pocetValidnych);
             hlpOutStream.writeInt(nextVolnyBlock);
             hlpOutStream.writeInt(predchadazajuciBlock);
+            hlpOutStream.writeInt(localDepth);
 
             return hlpByteArrayOutputStream.toByteArray();
 
@@ -99,6 +100,7 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
             this.pocetValidnych = hlpInStream.readInt();
             this.nextVolnyBlock = hlpInStream.readInt();
             this.predchadazajuciBlock = hlpInStream.readInt();
+            this.localDepth = hlpInStream.readInt();
 
         } catch (IOException e) {
             throw new IllegalStateException("Error during conversion from byte array.");
@@ -109,13 +111,13 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         return this.pocetValidnych;
     }
     public boolean isFull() {
-        return this.records.size() == this.blockFactor;
+        return this.pocetValidnych == this.blockFactor;
     }
 
     @Override
     public int getSize() {
     //vracia to aky je velky blok
-        return blockFactor * this.records.getFirst().getSize() + 3 * Integer.BYTES;
+        return blockFactor * this.records.getFirst().getSize() + 4 * Integer.BYTES;
     }
 
     @Override
@@ -153,7 +155,11 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
 
 
     public void clearRecords() {
-        this.records.clear();;
+        T getFirst = this.records.getFirst();
+        this.records.clear();
+        for (int i = 0; i < blockFactor; i++) {
+            this.records.add(getFirst.createClass());
+        }
         this.pocetValidnych = 0;
     }
 }

@@ -65,8 +65,8 @@ public class HeapFile<T extends IData<T>> {
                     this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
                     this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
                 }
-                    this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                    this.subor.write(padding(readBlock.toByteArray()));
+                this.subor.seek(getAdresaBloku(adresaNaVratenie));
+                this.subor.write(padding(readBlock.toByteArray()));
                 return adresaNaVratenie;
             } else if (adresaNaPrvyVolnyBlok != 0) {
                 this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));

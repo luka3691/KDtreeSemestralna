@@ -1,6 +1,7 @@
 package Hash;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 
@@ -23,14 +24,13 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 //vypocitat blokovaci faktor == pocet zaznamov v bloku
                 this.velkostCluster = velkostClustra;
                 int velkostVkladanychDat = insanciaGenerickej.getSize();
-                blockFactor = Math.floorDiv(velkostClustra - Integer.BYTES*3, velkostVkladanychDat);
+                blockFactor = Math.floorDiv(velkostClustra - Integer.BYTES*4, velkostVkladanychDat);
                 this.adresaNaPrvyVolnyBlok = 0;
                 this.adresaNaPrvyCiastocneVolnyBlok = 0;
                 this.globalDepth = 1;
             } else {
                 this.readRiadiaceData();
             }
-
             this.directory = new Directory(this.globalDepth);
         } catch (IOException ex) {
 
@@ -48,10 +48,13 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             this.velkostCluster = hlpOutStream.readInt();
             this.adresaNaPrvyVolnyBlok = hlpOutStream.readInt();
             this.adresaNaPrvyCiastocneVolnyBlok = hlpOutStream.readInt();
+
         } catch (IOException ex) {
 
         }
     }
+
+
 /*
     public int insert(T data) {
         //vrati mi adresu bloku kde sa data nachadzaju
@@ -115,22 +118,39 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 BitSet hash = record.getHash();
                 BitSet prefix = hash.get(0, directory.getGlobalDepth());
                 int adresa = directory.getBlockAddress(prefix);
-                this.subor.seek(getAdresaBloku(adresa));
-                byte[] blok = new byte[velkostCluster];
-                this.subor.read(blok);
-                BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, record);
-                if (readBlock.isFull()) {
-                    if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
-                        directory.doubleDirectory();
-                    }
-                    splitBucket(readBlock, prefix, adresa);
-                    // Retry insertion after splitting
-                } else {
+                if (adresa == -1) {
+                    BlockWithHash<T> readBlock = new BlockWithHash<>( blockFactor, 1, record);
                     readBlock.insertRecord(record);
-                    this.subor.seek(getAdresaBloku(adresa));
+                    int adresaNaVratenie = getposlednaAdresaBloku();
+                    /*
+                    if (!jePlny) {
+                        this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
+                        this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
+                    }
+
+                     */
+                    this.subor.seek(getAdresaBloku(adresaNaVratenie));
                     this.subor.write(padding(readBlock.toByteArray()));
+                    directory.setBlockAddress(prefix, adresaNaVratenie);
                     jeVlozene = true;
+                } else {
+                    this.subor.seek(getAdresaBloku(adresa));
+                    byte[] blok = new byte[velkostCluster];
+                    this.subor.read(blok);
+                    BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, record);
+                    if (readBlock.isFull()) {
+                        if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
+                            directory.doubleDirectory();
+                        }
+                        splitBlock(readBlock, prefix, adresa);
+                    } else {
+                        readBlock.insertRecord(record);
+                        this.subor.seek(getAdresaBloku(adresa));
+                        this.subor.write(padding(readBlock.toByteArray()));
+                        jeVlozene = true;
+                    }
                 }
+
             }
 
         }catch (IOException ex) {
@@ -139,32 +159,33 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
 
     }
 
-    private void splitBucket(BlockWithHash<T> bucket, BitSet prefix, int adresa) {
+    private void splitBlock(BlockWithHash<T> block, BitSet prefix, int adresa) {
         try {
-            int localDepth = bucket.getLocalDepth();
-            bucket.incrementDepth();
+            int localDepth = block.getLocalDepth();
+            block.incrementDepth();
 
-            BlockWithHash<T> newBucket = new BlockWithHash<T>(blockFactor, localDepth + 1, bucket.getRecords().getFirst().createClass());
-            List<T> recordsToRedistribute = bucket.getRecords();
-            bucket.clearRecords();
+            BlockWithHash<T> newBlock = new BlockWithHash<T>(blockFactor, localDepth + 1, block.getRecords().getFirst().createClass());
+            List<T> recordsToRedistribute = new ArrayList<>(block.getRecords());
+            block.clearRecords();
 
             for (T record : recordsToRedistribute) {
                 BitSet hash = record.getHash();
                 BitSet newPrefix = hash.get(0, localDepth + 1);
-                if (newPrefix.equals(prefix)) {
-                    bucket.insertRecord(record);
+                BitSet originalPrefix = prefix.get(0, localDepth);
+                if (originalPrefix.equals(newPrefix)) {
+                    block.insertRecord(record);
                 } else {
-                    newBucket.insertRecord(record);
+                    newBlock.insertRecord(record);
                 }
             }
-            int adresaNaVratenie = this.getposlednaAdresaBloku()+1;
+            int adresaNaVratenie = this.getposlednaAdresaBloku();
             this.subor.seek(getAdresaBloku(adresa));
-            this.subor.write(padding(bucket.toByteArray()));
+            this.subor.write(padding(block.toByteArray()));
 
             // Update directory pointers
             this.directory.setBlockAddress(prefix, adresa);
             this.subor.seek(getAdresaBloku(adresaNaVratenie));
-            this.subor.write(padding(newBucket.toByteArray()));
+            this.subor.write(padding(newBlock.toByteArray()));
             BitSet newPrefix = (BitSet) prefix.clone();
             newPrefix.set(localDepth); // Flip the next significant bit
             this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
@@ -184,11 +205,11 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     }
 
     private int getAdresaBloku(int indexBloku) {
-        return  (indexBloku - 1) * velkostCluster;
+        return  (indexBloku) * velkostCluster;
     }
 
     private int getposlednaAdresaBloku() throws IOException {
-        return  ((int)this.subor.length() / velkostCluster);
+        return  ((int)this.subor.length() / velkostCluster) ;
     }
 /*
     public boolean delete(T data) {
@@ -311,7 +332,8 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     public T get(T dataSKlucom) {
         //vrati data podla adresy
         try {
-            this.subor.seek(getAdresaBloku(this.directory.getBlockAddress(dataSKlucom.getHash())));
+            int adresa = this.directory.getBlockAddress(dataSKlucom.getHash());
+            this.subor.seek(getAdresaBloku(adresa));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
             BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, dataSKlucom);
@@ -348,6 +370,24 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         byte [] paddedBloc = new byte[velkostCluster];
         System.arraycopy(block, 0, paddedBloc, 0, block.length);
         return paddedBloc;
+    }
+
+    public ArrayList<BlockWithHash<T>> getVsetkyBloky(T data) {
+        ArrayList<BlockWithHash<T>> list = new ArrayList<>();
+        try {
+            int maxAdresa = this.getposlednaAdresaBloku();
+            for (int i = 0; i < maxAdresa; i++) {
+                this.subor.seek(getAdresaBloku(i));
+                byte[] blok = new byte[velkostCluster];
+                this.subor.read(blok);
+                BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, data);
+                list.add(readBlock);
+            }
+        }catch (IOException ex) {
+
+        }
+
+        return list;
     }
 }
 /*V semestrálnej práci je potrebné

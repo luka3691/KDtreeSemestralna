@@ -1,13 +1,25 @@
+import Hash.ExtendibleHash;
+import Hash.TestClassWithHash;
 import Tests.Measuring;
+import Tests.MeasuringWithHash;
+import Tests.Tester;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
         //zapisujem pole dat
-        Measuring measuring = new Measuring();
+
+        MeasuringWithHash measuring = new MeasuringWithHash();
 
         measuring.insert();
         measuring.test();
+
+
+        /*
+        Tester tester = new Tester();
+        tester.insert();
+
+         */
     }
 }
