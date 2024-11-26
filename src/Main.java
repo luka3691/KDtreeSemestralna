@@ -8,18 +8,18 @@ import Tests.Tester;
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        //zapisujem pole dat
 
-        MeasuringWithHash measuring = new MeasuringWithHash();
+
+        //MeasuringWithHash measuring = new MeasuringWithHash();
+        //testovanie heap file
+        Measuring measuring = new Measuring();
 
         measuring.insert();
         measuring.test();
 
 
-        /*
-        Tester tester = new Tester();
-        tester.insert();
+        measuring.insert();
+        measuring.test();
 
-         */
     }
 }

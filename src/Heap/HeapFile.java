@@ -4,6 +4,7 @@ import Data.IData;
 import Heap.Block;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class HeapFile<T extends IData<T>> {
     private int blockFactor;
@@ -251,6 +252,35 @@ public class HeapFile<T extends IData<T>> {
                 if (dataSKlucom.ownEquals(data)) {
                     return data;
                 }
+            }
+        }catch (IOException ex) {
+
+        }
+        return null;
+    }
+
+    public T edit(int adresaBloku, T originalDataSKlucom, T noveDataSKlucom) {
+        //vrati data podla adresy
+        try {
+            this.subor.seek(getAdresaBloku(adresaBloku));
+            byte[] blok = new byte[velkostCluster];
+            this.subor.read(blok);
+            Block<T> readBlock = new Block<>(blok, blockFactor, originalDataSKlucom);
+            T foundData = null;
+            int recordNumber = -1;
+            ArrayList<T> list = readBlock.getRecords();
+            for (int i = 0; i < list.size(); i++) {
+                T data = readBlock.getRecords().get(i);
+                if (originalDataSKlucom.ownEquals(data)) {
+                    foundData = data;
+                    recordNumber = i;
+                }
+            }
+            if (foundData != null) {
+                readBlock.removeRecord(originalDataSKlucom, recordNumber);
+                readBlock.insertRecord(noveDataSKlucom);
+                this.subor.seek(getAdresaBloku(adresaBloku));
+                this.subor.write(padding(readBlock.toByteArray()));
             }
         }catch (IOException ex) {
 
