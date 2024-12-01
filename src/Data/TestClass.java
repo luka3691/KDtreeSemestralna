@@ -10,6 +10,7 @@ public class TestClass implements IData<TestClass> {
     private int id;
     private static int MENO_MAX = 20;
     private static int PRIEZVISKO_MAX = 30;
+    private static int POPIS_MAX = 20;
     private TestNavstevaClass[] navvstevy;
 
     public TestClass() {
@@ -48,6 +49,13 @@ public class TestClass implements IData<TestClass> {
             hlpOutStream.writeChars(normalizeString(priezvisko, PRIEZVISKO_MAX,'0'));
             hlpOutStream.writeInt(priezviskoValidCharacters);
             hlpOutStream.writeInt(id);
+            /*
+            for (int i = 0; i< navvstevy.length; i++) {
+                hlpByteArrayOutputStream.write(navvstevy[i].toByteArray());
+            }
+
+             */
+
             return hlpByteArrayOutputStream.toByteArray();
         } catch (IOException ex) {
 
@@ -73,6 +81,26 @@ public class TestClass implements IData<TestClass> {
             this.priezviskoValidCharacters = hlpOutStream.readInt();
             this.priezvisko = this.priezvisko.substring(0, this.priezviskoValidCharacters);
             this.id = hlpOutStream.readInt();
+            /*
+            for (int i = 0; i < this.navvstevy.length; i++) {
+                String datum = "";
+                for (int m = 0; m < 10; m++) {
+                    datum += hlpOutStream.readChar();
+                }
+                double cena = hlpOutStream.readDouble();
+                String[] popisy = new String[10];
+                for (int m = 0; m < 5; m++) {
+                    String popis = "";
+                    for (int n = 0; n < POPIS_MAX; n++) {
+                        popis += hlpOutStream.readChar();
+                    }
+                    popisy[m] = popis;
+                }
+                this.navvstevy[i] = new TestNavstevaClass(datum, cena, popisy);
+            }
+
+             */
+
         } catch (IOException ex) {
 
         }

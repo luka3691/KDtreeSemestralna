@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Measuring {
-    private int pocetOperacii = 100;
+    private int pocetOperacii = 200;
     private int pocetData= 202;
     private
     HeapFile<TestClass> testHeap;
@@ -59,6 +59,7 @@ public class Measuring {
                     };
                     break;
                 case 3:
+                    System.out.println("Deleting.");
                     Pair<TestClass> dataNaDelete = this.data.get(random.nextInt(0, this.data.size()-1));
                     pocetDelete++;
                     boolean ret = this.testHeap.delete(dataNaDelete.adresa, dataNaDelete.data);

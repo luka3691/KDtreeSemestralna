@@ -29,7 +29,8 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.adresaNaPrvyCiastocneVolnyBlok = 0;
                 this.globalDepth = 1;
             } else {
-                this.readRiadiaceData();
+                //this.readRiadiaceData();
+                //zatial nemam urobene naciatanie riadiacich dat do suboru
             }
             this.directory = new Directory(this.globalDepth);
         } catch (IOException ex) {
@@ -178,6 +179,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     newBlock.insertRecord(record);
                 }
             }
+            //dorobit kontrolovanie, ci novy blok je prazdny alebo nie
             int adresaNaVratenie = this.getposlednaAdresaBloku();
             this.subor.seek(getAdresaBloku(adresa));
             this.subor.write(padding(block.toByteArray()));
