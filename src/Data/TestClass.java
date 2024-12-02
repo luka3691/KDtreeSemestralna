@@ -1,32 +1,43 @@
 package Data;
 
+import Hash.IDataWithHash;
+
 import java.io.*;
+import java.util.Arrays;
+import java.util.BitSet;
 
 public class TestClass implements IData<TestClass> {
     private String meno;
     private String priezvisko;
     private int menoValidCharacters;
     private int priezviskoValidCharacters;
+    private String ECV;
     private int id;
     private static int MENO_MAX = 20;
     private static int PRIEZVISKO_MAX = 30;
     private static int POPIS_MAX = 20;
+    private int ECVvalidCharacters;
+    private static int ECV_MAX = 10;
     private TestNavstevaClass[] navvstevy;
 
     public TestClass() {
         this.meno = "";
         this.priezvisko = "";
+        this.ECV = "";
         this.id = 0;
         menoValidCharacters = 0;
         priezviskoValidCharacters = 0;
+        ECVvalidCharacters = 0;
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
-    public TestClass(String meno, String priezvisko, int id) {
+    public TestClass(String meno, String priezvisko, int id, String ECV) {
         this.meno = meno;
         this.priezvisko = priezvisko;
         this.id = id;
+        this.ECV = ECV;
         menoValidCharacters = meno.length();
         priezviskoValidCharacters = priezvisko.length();
+        ECVvalidCharacters = ECV.length();
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     @Override
@@ -39,6 +50,8 @@ public class TestClass implements IData<TestClass> {
         return new TestClass();
     }
 
+
+
     @Override
     public byte[] toByteArray() {
         ByteArrayOutputStream hlpByteArrayOutputStream= new ByteArrayOutputStream();
@@ -49,6 +62,9 @@ public class TestClass implements IData<TestClass> {
             hlpOutStream.writeChars(normalizeString(priezvisko, PRIEZVISKO_MAX,'0'));
             hlpOutStream.writeInt(priezviskoValidCharacters);
             hlpOutStream.writeInt(id);
+            hlpOutStream.writeChars(normalizeString(ECV, ECV_MAX,'0'));
+            hlpOutStream.writeInt(ECVvalidCharacters);
+
             /*
             for (int i = 0; i< navvstevy.length; i++) {
                 hlpByteArrayOutputStream.write(navvstevy[i].toByteArray());
@@ -81,6 +97,11 @@ public class TestClass implements IData<TestClass> {
             this.priezviskoValidCharacters = hlpOutStream.readInt();
             this.priezvisko = this.priezvisko.substring(0, this.priezviskoValidCharacters);
             this.id = hlpOutStream.readInt();
+            for (int i = 0; i < ECV_MAX; i++) {
+                this.ECV += hlpOutStream.readChar();
+            }
+            this.ECVvalidCharacters = hlpOutStream.readInt();
+            this.ECV = this.ECV.substring(0, this.ECVvalidCharacters);
             /*
             for (int i = 0; i < this.navvstevy.length; i++) {
                 String datum = "";
@@ -108,7 +129,7 @@ public class TestClass implements IData<TestClass> {
 
     @Override
     public int getSize() {
-        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX) + Integer.BYTES * 3 ; // + navstevy.getSize()
+        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX + ECV_MAX) + Integer.BYTES * 4 ; // + navstevy.getSize()
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {
@@ -129,5 +150,67 @@ public class TestClass implements IData<TestClass> {
 
     public int getId() {
         return id;
+    }
+
+    public String getMeno() {
+        return meno;
+    }
+
+    public String getPriezvisko() {
+        return priezvisko;
+    }
+
+    public String getECV() {
+        return ECV;
+    }
+
+    public TestNavstevaClass[] getNavvstevy() {
+        return navvstevy;
+    }
+
+    public void setECV(String ECV) {
+        this.ECV = ECV;
+        ECVvalidCharacters = ECV.length();
+    }
+
+    public void setMeno(String meno) {
+        this.meno = meno;
+        menoValidCharacters = meno.length();
+    }
+
+    public void setPriezvisko(String priezvisko) {
+
+        this.priezvisko = priezvisko;
+        priezviskoValidCharacters = priezvisko.length();
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setNavvstevy(TestNavstevaClass[] navvstevy) {
+        this.navvstevy = navvstevy;
+    }
+
+    public void vlozNavstevu(TestNavstevaClass navsteva) {
+        for (int i = 0; i < navvstevy.length; i++) {
+            if (this.navvstevy[i].isDummy()) {
+                this.navvstevy[i] = navsteva;
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "TestClass{" +
+                "meno='" + meno + '\'' +
+                ", priezvisko='" + priezvisko + '\'' +
+                ", menoValidCharacters=" + menoValidCharacters +
+                ", priezviskoValidCharacters=" + priezviskoValidCharacters +
+                ", ECV='" + ECV + '\'' +
+                ", id=" + id +
+                ", ECVvalidCharacters=" + ECVvalidCharacters +
+                ", navvstevy=" + Arrays.toString(navvstevy) +
+                '}';
     }
 }

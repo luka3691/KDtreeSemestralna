@@ -16,7 +16,7 @@ public class Measuring {
     Random random;
     private int id;
     public Measuring() {
-        TestClass test = new TestClass("Prvy", "Prvy", 0);
+        TestClass test = new TestClass();
         this.testHeap = new HeapFile<>(400, "Data.bin", "Riadiace.bin", test);
         this.data = new ArrayList<>();
         random = new Random();
@@ -30,7 +30,7 @@ public class Measuring {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
-        TestClass test = new TestClass("Prvy", "Prvy", id);
+        TestClass test = new TestClass(); //dopnit ked testovat
         int returnAdresa = this.testHeap.insert(test);
         if (returnAdresa < 1) {
             System.out.println("Error pri inserte");

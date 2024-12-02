@@ -1,5 +1,7 @@
 package Hash;
 
+import Heap.HeapFile;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -123,13 +125,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     BlockWithHash<T> readBlock = new BlockWithHash<>( blockFactor, 1, record);
                     readBlock.insertRecord(record);
                     int adresaNaVratenie = getposlednaAdresaBloku();
-                    /*
-                    if (!jePlny) {
-                        this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                        this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                    }
-
-                     */
                     this.subor.seek(getAdresaBloku(adresaNaVratenie));
                     this.subor.write(padding(readBlock.toByteArray()));
                     directory.setBlockAddress(prefix, adresaNaVratenie);
@@ -180,17 +175,19 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 }
             }
             //dorobit kontrolovanie, ci novy blok je prazdny alebo nie
-            int adresaNaVratenie = this.getposlednaAdresaBloku();
+
             this.subor.seek(getAdresaBloku(adresa));
             this.subor.write(padding(block.toByteArray()));
-
-            // Update directory pointers
+// Update directory pointers
             this.directory.setBlockAddress(prefix, adresa);
-            this.subor.seek(getAdresaBloku(adresaNaVratenie));
-            this.subor.write(padding(newBlock.toByteArray()));
-            BitSet newPrefix = (BitSet) prefix.clone();
-            newPrefix.set(localDepth); // Flip the next significant bit
-            this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
+            if (!newBlock.isEmpty()) {
+                int adresaNaVratenie = this.getposlednaAdresaBloku();
+                this.subor.seek(getAdresaBloku(adresaNaVratenie));
+                this.subor.write(padding(newBlock.toByteArray()));
+                BitSet newPrefix = (BitSet) prefix.clone();
+                newPrefix.set(localDepth); // Flip the next significant bit
+                this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
+            }
 
         } catch (IOException ex) {
 
@@ -378,7 +375,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         ArrayList<BlockWithHash<T>> list = new ArrayList<>();
         try {
             int maxAdresa = this.getposlednaAdresaBloku();
-            for (int i = 0; i < maxAdresa; i++) {
+            for (int i = 1; i < maxAdresa+1; i++) {
                 this.subor.seek(getAdresaBloku(i));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);

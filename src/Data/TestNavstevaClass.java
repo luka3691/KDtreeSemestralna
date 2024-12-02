@@ -2,6 +2,7 @@ package Data;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 public class TestNavstevaClass {
     private LocalDate datum;
@@ -12,6 +13,12 @@ public class TestNavstevaClass {
         this.datum = LocalDate.parse(datum);
         this.cena = cena;
         this.popisy = popisy;
+        //this.navvstevy = new Data.TestNavstevaClass[5];
+    }
+    public TestNavstevaClass() {
+        this.datum = LocalDate.parse("12-12-1970");
+        this.cena = 0.0;
+        this.popisy = new String[] {" ", " ", " ", " ", " ", " ", " ", " ", " ", " "};
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     public byte[] toByteArray() {
@@ -54,5 +61,29 @@ public class TestNavstevaClass {
             normalized.append(paddingChar);
         }
         return normalized.toString();
+    }
+
+    public LocalDate getDatum() {
+        return datum;
+    }
+
+    public double getCena() {
+        return cena;
+    }
+
+    public String[] getPopisy() {
+        return popisy;
+    }
+    public boolean isDummy() {
+        return this.datum.toString().equals("12-12-1970");
+    }
+
+    @Override
+    public String toString() {
+        return "TestNavstevaClass{" +
+                "datum=" + datum +
+                ", cena=" + cena +
+                ", popisy=" + Arrays.toString(popisy) +
+                '}';
     }
 }

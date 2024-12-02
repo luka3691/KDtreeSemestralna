@@ -126,4 +126,28 @@ public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
     public int getId() {
         return id;
     }
+
+    public void setECV(String ECV) {
+        this.ECV = ECV;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getECV() {
+        return ECV;
+    }
+
+    public TestNavstevaClass[] getNavvstevy() {
+        return navvstevy;
+    }
+
+    public String getMeno() {
+        return meno;
+    }
+
+    public String getPriezvisko() {
+        return priezvisko;
+    }
 }

@@ -19,7 +19,7 @@ public class MeasuringWithHash {
     Random random;
     private int id;
     public MeasuringWithHash() {
-        TestClassWithHash test = new TestClassWithHash("Prvy", "Prvy", 0);
+        TestClassWithHash test = new TestClassWithHash();
         this.testHeap = new ExtendibleHash<>(400, "DataHash.bin", "RiadiaceHash.bin", test);
         this.data = new ArrayList<>();
         random = new Random();
@@ -33,7 +33,7 @@ public class MeasuringWithHash {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
-        TestClassWithHash test = new TestClassWithHash("Prvy", "Prvy", id);
+        TestClassWithHash test = new TestClassWithHash(); //dopnit ked testovat
         this.testHeap.insert(test);
         this.data.add(test);
         if (this.testHeap.get(test) == null) {

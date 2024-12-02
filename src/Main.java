@@ -12,10 +12,15 @@ public class Main {
 
         //MeasuringWithHash measuring = new MeasuringWithHash();
         //testovanie heap file
+        Tester tester = new Tester();
+        tester.insert();
+        /*
         Measuring measuring = new Measuring();
 
         measuring.insert();
         measuring.test();
+
+         */
 
 
         /*

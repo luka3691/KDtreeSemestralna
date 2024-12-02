@@ -134,5 +134,14 @@ public class Block <T extends IData<T>> implements IRecord<T> {
         this.predchadazajuciBlock = predchadazajuciBlock;
     }
 
-
+    @Override
+    public String toString() {
+        return "Block{" +
+                "blockFactor=" + blockFactor +
+                ", pocetValidnych=" + pocetValidnych +
+                ", nextVolnyBlock=" + nextVolnyBlock +
+                ", predchadazajuciBlock=" + predchadazajuciBlock +
+                ", records=" + records.toString() +
+                '}';
+    }
 }
