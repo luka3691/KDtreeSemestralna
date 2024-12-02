@@ -347,7 +347,7 @@ public class Manager {
 
     public void insert(String meno, String priezvisko, int id, String ecv) {
         if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
-            TestClass data = new TestClass(meno, priezvisko, id, ecv);
+            TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
             TestClassWithIDHash idData = new TestClassWithIDHash(cisloBlokuData, id);
@@ -356,7 +356,7 @@ public class Manager {
         }
     }
 
-    public void vlozNavtevu( int id, int den, int mesiac, int rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
+    public void vlozNavtevu( int id, String den, String mesiac, String rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
         String[] popisy = new String[]{praca1,
                 praca2,
                 praca3,
@@ -367,7 +367,15 @@ public class Manager {
                 praca8,
                 praca9,
                 praca10};
-        TestNavstevaClass navsteva = new TestNavstevaClass(den + "-" + mesiac + "-" + rok, cena, popisy);
+        String tempMesiac = mesiac;
+        if (Integer.parseInt(tempMesiac)<10) {
+            tempMesiac = "0" + tempMesiac;
+        }
+        String tempDen = den;
+        if (Integer.parseInt(tempDen)<10) {
+            tempDen = "0" + tempDen;
+        }
+        TestNavstevaClass navsteva = new TestNavstevaClass(rok + "-" + tempMesiac + "-" + tempDen, cena, popisy);
         TestClass existing = this.findUsingID(id);
         existing.vlozNavstevu(navsteva);
         TestClassWithIDHash idData = idHash.get(new TestClassWithIDHash(0, id));

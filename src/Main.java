@@ -3,6 +3,7 @@ import Hash.TestClassWithHash;
 import Tests.Measuring;
 import Tests.MeasuringWithHash;
 import Tests.Tester;
+import Tests.TesterHeap;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -12,7 +13,7 @@ public class Main {
 
         //MeasuringWithHash measuring = new MeasuringWithHash();
         //testovanie heap file
-        Tester tester = new Tester();
+        TesterHeap tester = new TesterHeap();
         tester.insert();
         /*
         Measuring measuring = new Measuring();

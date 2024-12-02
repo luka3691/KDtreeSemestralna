@@ -262,9 +262,9 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent e) {
                 manager.vlozNavtevu(Integer.parseInt(idField.getText().toString()),
-                        Integer.parseInt(denField.getText()),
-                        Integer.parseInt(mesiacField.getText()),
-                        Integer.parseInt(rokField.getText()),
+                        denField.getText(),
+                        mesiacField.getText(),
+                        rokField.getText(),
                         Double.parseDouble(cenaField.getText()),
                         praca1.getText(),
                         praca2.getText(),

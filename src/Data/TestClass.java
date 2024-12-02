@@ -28,9 +28,9 @@ public class TestClass implements IData<TestClass> {
         menoValidCharacters = 0;
         priezviskoValidCharacters = 0;
         ECVvalidCharacters = 0;
-        //this.navvstevy = new Data.TestNavstevaClass[5];
+        this.navvstevy = new TestNavstevaClass[]{new TestNavstevaClass(), new TestNavstevaClass(), new TestNavstevaClass(), new TestNavstevaClass(), new TestNavstevaClass()};
     }
-    public TestClass(String meno, String priezvisko, int id, String ECV) {
+    public TestClass(String meno, String priezvisko, int id, String ECV, TestNavstevaClass[] navstevy) {
         this.meno = meno;
         this.priezvisko = priezvisko;
         this.id = id;
@@ -38,7 +38,18 @@ public class TestClass implements IData<TestClass> {
         menoValidCharacters = meno.length();
         priezviskoValidCharacters = priezvisko.length();
         ECVvalidCharacters = ECV.length();
-        //this.navvstevy = new Data.TestNavstevaClass[5];
+        if (navstevy.length < 5) {
+            TestNavstevaClass[] temp = new TestNavstevaClass[5];
+            for (int i = 0; i < navstevy.length; i++) {
+                temp[i] = navstevy[i]; // Copy existing elements
+            }
+            for (int i = navstevy.length; i < 5; i++) {
+                temp[i] = new TestNavstevaClass(); // Fill remaining slots with empty strings
+            }
+            this.navvstevy = temp;
+        } else {
+            this.navvstevy = navstevy;
+        }
     }
     @Override
     public boolean ownEquals(TestClass data) {
@@ -65,12 +76,12 @@ public class TestClass implements IData<TestClass> {
             hlpOutStream.writeChars(normalizeString(ECV, ECV_MAX,'0'));
             hlpOutStream.writeInt(ECVvalidCharacters);
 
-            /*
+
             for (int i = 0; i< navvstevy.length; i++) {
                 hlpByteArrayOutputStream.write(navvstevy[i].toByteArray());
             }
 
-             */
+
 
             return hlpByteArrayOutputStream.toByteArray();
         } catch (IOException ex) {
@@ -102,25 +113,37 @@ public class TestClass implements IData<TestClass> {
             }
             this.ECVvalidCharacters = hlpOutStream.readInt();
             this.ECV = this.ECV.substring(0, this.ECVvalidCharacters);
-            /*
+
             for (int i = 0; i < this.navvstevy.length; i++) {
-                String datum = "";
-                for (int m = 0; m < 10; m++) {
-                    datum += hlpOutStream.readChar();
+                int year = hlpOutStream.readInt();
+                int month = hlpOutStream.readInt();
+                int day = hlpOutStream.readInt();
+                String date = String.valueOf(year);
+                if (month < 10) {
+                    date = date + "-0" + String.valueOf(month);
+                } else {
+                    date = date + "-" + String.valueOf(month);
                 }
-                double cena = hlpOutStream.readDouble();
+                if (day < 10) {
+                    date = date + "-0" + String.valueOf(day);
+                } else {
+                    date = date + "-" + String.valueOf(day);
+                }
+
+
                 String[] popisy = new String[10];
-                for (int m = 0; m < 5; m++) {
+                for (int m = 0; m < 10; m++) {
                     String popis = "";
                     for (int n = 0; n < POPIS_MAX; n++) {
                         popis += hlpOutStream.readChar();
                     }
                     popisy[m] = popis;
                 }
-                this.navvstevy[i] = new TestNavstevaClass(datum, cena, popisy);
+                double cena = hlpOutStream.readDouble();
+                this.navvstevy[i] = new TestNavstevaClass(date, cena, popisy);
             }
 
-             */
+
 
         } catch (IOException ex) {
 
@@ -129,7 +152,7 @@ public class TestClass implements IData<TestClass> {
 
     @Override
     public int getSize() {
-        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX + ECV_MAX) + Integer.BYTES * 4 ; // + navstevy.getSize()
+        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX + ECV_MAX) + Integer.BYTES * 4 + this.navvstevy[0].getSize() * 5;
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {

@@ -60,13 +60,14 @@ public class Block <T extends IData<T>> implements IRecord<T> {
         DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
 
         try{
+
            for (T record : this.records)  {
                hlpOutStream.write(record.toByteArray());
            }
+
             hlpOutStream.writeInt(pocetValidnych);
             hlpOutStream.writeInt(nextVolnyBlock);
             hlpOutStream.writeInt(predchadazajuciBlock);
-
             return hlpByteArrayOutputStream.toByteArray();
 
 
@@ -84,6 +85,7 @@ public class Block <T extends IData<T>> implements IRecord<T> {
         DataInputStream hlpInStream = new DataInputStream(hlpByteArrayInputStream);
 
         try {
+
             for (int i = 0; i < blockFactor; i++) {
                 byte[] zaznamy = new byte[this.records.getFirst().getSize()];
                 for (int j = 0; j < records.getFirst().getSize(); j++) {

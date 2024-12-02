@@ -1,6 +1,7 @@
 package Tests;
 
 import Data.TestClass;
+import Data.TestNavstevaClass;
 import Hash.*;
 import Heap.Block;
 import Heap.HeapFile;
@@ -64,7 +65,7 @@ public class Tester {
     }
     public void insert(String meno, String priezvisko, int id, String ecv) {
         if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
-            TestClass data = new TestClass(meno, priezvisko, id, ecv);
+            TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
             TestClassWithIDHash idData = new TestClassWithIDHash(cisloBlokuData, id);
