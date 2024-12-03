@@ -226,15 +226,15 @@ public class TestClass implements IData<TestClass> {
 
     @Override
     public String toString() {
-        return "TestClass{" +
-                "meno='" + meno + '\'' +
-                ", priezvisko='" + priezvisko + '\'' +
-                ", menoValidCharacters=" + menoValidCharacters +
-                ", priezviskoValidCharacters=" + priezviskoValidCharacters +
-                ", ECV='" + ECV + '\'' +
-                ", id=" + id +
-                ", ECVvalidCharacters=" + ECVvalidCharacters +
-                ", navvstevy=" + Arrays.toString(navvstevy) +
-                '}';
+        return "[" +
+                "meno:" + meno + '\'' +
+                "| priezvisko:" + priezvisko + '\'' +
+                "| menoValidCharacters:" + menoValidCharacters +
+                "| priezviskoValidCharacters:" + priezviskoValidCharacters +
+                "| ECV:" + ECV + '\'' +
+                "| ID:" + id +
+                "| ECVvalidCharacters=" + ECVvalidCharacters +
+                "| navvstevy=" + Arrays.toString(navvstevy) +
+                "]";
     }
 }

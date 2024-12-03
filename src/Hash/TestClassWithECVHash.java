@@ -142,11 +142,11 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
 
     @Override
     public String toString() {
-        return "TestClassWithECVHash{" +
-                "adresa=" + adresa +
-                ", ECV='" + ECV + '\'' +
-                ", ECVvalidCharacters=" + ECVvalidCharacters +
-                ", idcko=" + idcko +
-                '}';
+        return "[" +
+                "adresa:" + adresa +
+                "| ECV:'" + ECV + '\'' +
+                "| PocetValidECVZnak:" + ECVvalidCharacters +
+                "| ID:" + idcko +
+                "]";
     }
 }

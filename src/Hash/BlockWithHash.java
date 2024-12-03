@@ -168,13 +168,13 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
 
     @Override
     public String toString() {
-        return "BlockWithHash{" +
+        return "{" +
                 "blockFactor=" + blockFactor +
-                ", localDepth=" + localDepth +
-                ", pocetValidnych=" + pocetValidnych +
-                ", nextVolnyBlock=" + nextVolnyBlock +
-                ", predchadazajuciBlock=" + predchadazajuciBlock +
-                ", records=" + records.toString() +
+                "| localDepth=" + localDepth +
+                "| pocetValidnych:" + pocetValidnych +
+                "| nextVolnyBlock:" + nextVolnyBlock +
+                "| predchadazajuciBlock=" + predchadazajuciBlock +
+                "| records=" + records.toString() +
                 '}';
     }
 }

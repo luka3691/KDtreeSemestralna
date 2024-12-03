@@ -74,9 +74,9 @@ public class TestClassWithIDHash implements IDataWithHash<TestClassWithIDHash> {
 
     @Override
     public String toString() {
-        return "TestClassWithIDHash{" +
-                "adresa=" + adresa +
-                ", id=" + id +
-                '}';
+        return "[" +
+                "adresa:" + adresa +
+                "| id:" + id +
+                ']';
     }
 }

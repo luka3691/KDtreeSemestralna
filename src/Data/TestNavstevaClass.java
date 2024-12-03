@@ -97,10 +97,10 @@ public class TestNavstevaClass {
         if (this.isDummy()) {
             return "";
         }
-        return "TestNavstevaClass{" +
-                "datum=" + datum +
-                ", cena=" + cena +
-                ", popisy=" + Arrays.toString(popisy) +
-                '}';
+        return "(" +
+                "datum:" + datum +
+                "| cena:" + cena +
+                "| popisy:" + Arrays.toString(popisy) +
+                ")";
     }
 }
