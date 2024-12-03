@@ -260,6 +260,7 @@ public class HeapFile<T extends IData<T>> {
         }
         return null;
     }
+    /*
     public T edit(int adresaBloku, T original, T nove) {
         try {
             this.subor.seek(getAdresaBloku(adresaBloku));
@@ -278,7 +279,7 @@ public class HeapFile<T extends IData<T>> {
         }
         return null;
     }
-
+*/
 
     public T edit(int adresaBloku, T originalDataSKlucom, T noveDataSKlucom) {
         //vrati data podla adresy
