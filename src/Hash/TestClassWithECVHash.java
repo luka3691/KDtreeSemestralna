@@ -89,27 +89,7 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        /*
-        // Limit to first 4 characters or less if input is shorter
-        String trimmedInput = ECV.length() > 4 ? ECV.substring(0, 4) : ECV;
 
-        // Create a BitSet with enough bits for 4 characters (4 * 8 bits = 32 bits)
-        BitSet bitSet = new BitSet(32);
-
-        // Convert each character to binary and set bits in the BitSet
-        int bitIndex = 0;
-        for (char ch : trimmedInput.toCharArray()) {
-            int charValue = (int) ch;
-            for (int i = 7; i >= 0; i--) {
-                if ((charValue & (1 << i)) != 0) {
-                    bitSet.set(bitIndex);
-                }
-                bitIndex++;
-            }
-        }
-        return bitSet;
-
-         */
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {

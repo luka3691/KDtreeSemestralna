@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.BitSet;
 
 public class Directory {
-    private ArrayList<Integer> directory; // Stores block addresses
+    private ArrayList<Integer> directory; // adresar blokov
     private int globalDepth;
 
     public Directory(int initialDepth) {
@@ -20,7 +20,7 @@ public class Directory {
     private void initializeDirectory(int depth) {
         int size = (int) Math.pow(2, depth);
         for (int i = 0; i < size; i++) {
-            directory.add(-1); // Initialize with invalid address (e.g., -1)
+            directory.add(-1); // incializacia s invalidnou adresou
         }
     }
 
@@ -28,7 +28,7 @@ public class Directory {
         int index = 0;
         for (int i = 0; i < globalDepth; i++) {
             if (bitSet.get(i)) {
-                index |= (1 << i); // Set the corresponding bit in the index
+                index |= (1 << i); // nastavenie bitu na indexe
             }
         }
         return index;
@@ -46,12 +46,12 @@ public class Directory {
 
     public void doubleDirectory() {
         int oldSize = directory.size();
-        if (globalDepth >= 26) { // Example: Limit to 26 bits (2^26 entries)
-            throw new IllegalStateException("Maximum directory depth reached!");
+        if (globalDepth >= 26) { // Maximalne 26 bits (2^26)
+            throw new IllegalStateException("Maximalna hlbka dosiahnuta!");
         }
         System.out.println(oldSize);
         for (int i = 0; i < oldSize; i++) {
-            directory.add(directory.get(i)); // Duplicate the block addresses
+            directory.add(directory.get(i)); // Duplikovanie blokovych adries
         }
         globalDepth++;
 

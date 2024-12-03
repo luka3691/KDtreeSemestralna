@@ -41,10 +41,10 @@ public class TestClass implements IData<TestClass> {
         if (navstevy.length < 5) {
             TestNavstevaClass[] temp = new TestNavstevaClass[5];
             for (int i = 0; i < navstevy.length; i++) {
-                temp[i] = navstevy[i]; // Copy existing elements
+                temp[i] = navstevy[i]; // prekopirovanie existujucich
             }
             for (int i = navstevy.length; i < 5; i++) {
-                temp[i] = new TestNavstevaClass(); // Fill remaining slots with empty strings
+                temp[i] = new TestNavstevaClass(); // hnaplnennie prazdnym string
             }
             this.navvstevy = temp;
         } else {

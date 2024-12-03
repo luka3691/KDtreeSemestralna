@@ -37,7 +37,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         this.fromByteArray(blockData);
     }
     public boolean insertRecord(T newData) {
-        //TODO implementovat insert
         this.records.set(pocetValidnych,newData);
         pocetValidnych++;
         return pocetValidnych == blockFactor;
@@ -51,7 +50,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         return -1;
     }
     public boolean removeRecord(T newData, int recordNumber) {
-        //TODO implementovat insert
         this.records.remove(recordNumber);
         this.records.add(newData.createClass());
         pocetValidnych--;
