@@ -87,13 +87,4 @@ public class MeasuringWithHash {
     }
 
 
-    private static class Pair<T extends IData<T>> {
-        T data;
-        int adresa;
-
-        Pair(T data, int adresa) {
-            this.data = data;
-            this.adresa = adresa;
-        }
-    }
 }

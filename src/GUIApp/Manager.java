@@ -3,10 +3,8 @@ package GUIApp;
 import Data.TestClass;
 import Data.TestNavstevaClass;
 
-import Hash.ExtendibleHash;
-import Hash.TestClassWithECVHash;
-import Hash.TestClassWithHash;
-import Hash.TestClassWithIDHash;
+import Hash.*;
+import Heap.Block;
 import Heap.HeapFile;
 
 import java.io.IOException;
@@ -27,11 +25,14 @@ public class Manager {
     private String ecvRiadiace = "EcvRiadiace.bin";
     private String idFileName = "IdHash.bin";
     private String idRiadiace = "IdRiadiace.bin";
+    private static final char[] CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final int BASE = CHAR_POOL.length;
     public Manager() {
-        heapFile = new HeapFile<>(400, heapFileName, heapRiadiace, new TestClass());
+        heapFile = new HeapFile<>(5000, heapFileName, heapRiadiace, new TestClass());
         ecvHash = new ExtendibleHash<>(400, ecvFileName, ecvRiadiace, new TestClassWithECVHash());
         idHash = new ExtendibleHash<>(400, idFileName, idRiadiace, new TestClassWithIDHash());
         idGenerator = 1;
+        ecvGenerator = "A";
     }
 
 /*
@@ -356,7 +357,7 @@ public class Manager {
         }
     }
 
-    public void vlozNavtevu( int id, String den, String mesiac, String rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
+    public void vlozNavtevu(int id, String den, String mesiac, String rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
         String[] popisy = new String[]{praca1,
                 praca2,
                 praca3,
@@ -382,7 +383,7 @@ public class Manager {
         heapFile.edit(idData.getAdresa(), existing, existing);
     }
 
-    public void editNavtevu(int poradoveCislo, int id, int den, int mesiac, int rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
+    public void editNavtevu(int poradoveCislo, int id, String den, String mesiac, String rok, double cena, String praca1, String praca2, String praca3, String praca4, String praca5, String praca6, String praca7, String praca8, String praca9, String praca10) {
         String[] popisy = new String[]{praca1,
                 praca2,
                 praca3,
@@ -393,7 +394,15 @@ public class Manager {
                 praca8,
                 praca9,
                 praca10};
-        TestNavstevaClass navsteva = new TestNavstevaClass(den + "-" + mesiac + "-" + rok, cena, popisy);
+        String tempMesiac = mesiac;
+        if (Integer.parseInt(tempMesiac)<10) {
+            tempMesiac = "0" + tempMesiac;
+        }
+        String tempDen = den;
+        if (Integer.parseInt(tempDen)<10) {
+            tempDen = "0" + tempDen;
+        }
+        TestNavstevaClass navsteva = new TestNavstevaClass(rok + "-" + tempMesiac + "-" + tempDen, cena, popisy);
         TestClass existing = this.findUsingID(id);
         existing.getNavvstevy()[poradoveCislo] = navsteva;
         TestClassWithIDHash idData = idHash.get(new TestClassWithIDHash(0, id));
@@ -417,5 +426,59 @@ public class Manager {
         existing.setMeno(meno);
         existing.setPriezvisko(priezvisko);
         heapFile.edit(idData.getAdresa(), existing, existing);
+    }
+    private static String getNextString(String current) {
+        if (current.isEmpty()) {
+            return String.valueOf(CHAR_POOL[0]);
+        }
+
+        StringBuilder result = new StringBuilder(current);
+        int index = result.length() - 1;
+
+        while (index >= 0) {
+            int charIndex = findCharIndex(result.charAt(index));
+
+            if (charIndex < BASE - 1) {
+                result.setCharAt(index, CHAR_POOL[charIndex + 1]);
+                return result.toString();
+            } else {
+                result.setCharAt(index, CHAR_POOL[0]);
+                index--;
+            }
+        }
+
+        // If we carried past the first character, prepend a new character
+        result.insert(0, CHAR_POOL[0]);
+        return result.toString();
+    }
+
+    private static int findCharIndex(char c) {
+        for (int i = 0; i < BASE; i++) {
+            if (CHAR_POOL[i] == c) {
+                return i;
+            }
+        }
+        throw new IllegalArgumentException("Character not found in CHAR_POOL: " + c);
+    }
+
+    public void insertData(int pocetData) {
+        for (int i = 0; i< pocetData; i++) {
+            String ecv = getNextString(this.ecvGenerator);
+            this.insert("", "", idGenerator, ecv);
+            this.idGenerator++;
+            this.ecvGenerator = ecv;
+        }
+    }
+
+    public ArrayList<Block<TestClass>> getHeapBlocks() {
+        return this.heapFile.getVsetkyBloky(new TestClass());
+    }
+
+    public ArrayList<BlockWithHash<TestClassWithIDHash>> getIDBlocks() {
+        return this.idHash.getVsetkyBloky(new TestClassWithIDHash());
+    }
+
+    public ArrayList<BlockWithHash<TestClassWithECVHash>> getECVBlocks() {
+        return this.ecvHash.getVsetkyBloky(new TestClassWithECVHash());
     }
 }

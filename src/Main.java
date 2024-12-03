@@ -11,17 +11,17 @@ public class Main {
     public static void main(String[] args) {
         //zapisujem pole dat
 
-        //MeasuringWithHash measuring = new MeasuringWithHash();
+        MeasuringWithHash measuring = new MeasuringWithHash();
         //testovanie heap file
-        TesterHeap tester = new TesterHeap();
-        tester.insert();
-        /*
-        Measuring measuring = new Measuring();
+        //TesterHeap tester = new TesterHeap();
+        //tester.insert();
+
+        //Measuring measuring = new Measuring();
 
         measuring.insert();
         measuring.test();
 
-         */
+
 
 
         /*

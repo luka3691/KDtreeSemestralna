@@ -2,6 +2,10 @@ package GUIApp;
 
 import Data.TestClass;
 import Data.TestNavstevaClass;
+import Hash.BlockWithHash;
+import Hash.TestClassWithECVHash;
+import Hash.TestClassWithIDHash;
+import Heap.Block;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -10,6 +14,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class App {
 
@@ -23,7 +29,7 @@ public class App {
     private JButton option3;
     private JButton option4;
     private JButton backVsetko;
-    private JList listParciel;
+    private JList listBlockHeap;
     private JButton submit2;
     private JButton option2;
     private JButton backCreate;
@@ -51,10 +57,8 @@ public class App {
     private JButton option11;
     private JPanel generateData;
     private JButton backGenerate;
-    private JTextField numberOfNehnutelnost;
-    private JTextField numberOfParcela;
+    private JTextField numberOfPeople;
     private JButton submitGenerate;
-    private JButton submit11;
     private JSlider sliderPercenta;
     private JLabel prekryvLabel;
     private JButton buttonVsetko;
@@ -78,8 +82,10 @@ public class App {
     private JButton submitZmeny;
     private JButton submitNavstevaZmeny;
     private JTextField poradoveCisloField;
-    private JButton aktualizovaťNávštevuButton;
-    private JButton vymazaťŃavšetevuButton;
+    private JButton aktualizovatNavstevuButton;
+    private JButton vymazatNavstevuButton;
+    private JList listBlockHashID;
+    private JList listBlockHashECV;
     private CardLayout cl;
 
     public static void main(String[] args) {
@@ -138,7 +144,6 @@ public class App {
         vyhladavanieButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("Vyhladavanie button clicked!");
                 cl.show(hlavny, "editZakaznik");
             }
         });
@@ -152,6 +157,24 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cl.show(hlavny, "showVsetko");
+                ArrayList<Block<TestClass>> heapBlocks = manager.getHeapBlocks();
+                ArrayList<BlockWithHash<TestClassWithIDHash>> idBlocks = manager.getIDBlocks();
+                ArrayList<BlockWithHash<TestClassWithECVHash>> ecvBlocks = manager.getECVBlocks();
+                DefaultListModel<Block<TestClass>> listModel = new DefaultListModel<>();
+                for (Block<TestClass> object : heapBlocks) {
+                    listModel.addElement(object);
+                }
+                listBlockHeap.setModel(listModel);
+                DefaultListModel<BlockWithHash<TestClassWithIDHash>> listModelHashID = new DefaultListModel<>();
+                for (BlockWithHash<TestClassWithIDHash> object : idBlocks) {
+                    listModelHashID.addElement(object);
+                }
+                listBlockHashID.setModel(listModelHashID);
+                DefaultListModel<BlockWithHash<TestClassWithECVHash>> listModelHashECV = new DefaultListModel<>();
+                for (BlockWithHash<TestClassWithECVHash> object : ecvBlocks) {
+                    listModelHashECV.addElement(object);
+                }
+                listBlockHashECV.setModel(listModelHashECV);
             }
         });
 
@@ -209,7 +232,7 @@ public class App {
                     praca7.setText(data.getPopisy()[6]);
                     praca8.setText(data.getPopisy()[7]);
                     praca9.setText(data.getPopisy()[8]);
-                    praca10.setText(data.getPopisy()[10]);
+                    praca10.setText(data.getPopisy()[9]);
                     poradoveCisloField.setText(String.valueOf(listOfZaznam.getSelectedIndex()));
                 }
 
@@ -236,20 +259,10 @@ public class App {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                //manager.insertData(Integer.parseInt(numberOfParcela.getText()), Integer.parseInt(numberOfNehnutelnost.getText()), sliderPercenta.getValue());
+                manager.insertData(Integer.parseInt(numberOfPeople.getText()));
                 cl.show(hlavny, "menu");
             }
         });
-
-        submit11.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                //manager.setBounds(Double.parseDouble(systemX.getText()), Double.parseDouble(systemY.getText()), Double.parseDouble(systemWidth.getText()), Double.parseDouble(systemHeight.getText()));
-                cl.show(hlavny, "menu");
-            }
-        });
-
-
 
         submitZmeny.addActionListener(new ActionListener() {
             @Override
@@ -261,6 +274,7 @@ public class App {
         submitNavstevaZmeny.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Vytvorenie navsetvy");
                 manager.vlozNavtevu(Integer.parseInt(idField.getText().toString()),
                         denField.getText(),
                         mesiacField.getText(),
@@ -279,19 +293,21 @@ public class App {
                 );
             }
         });
-        vymazaťŃavšetevuButton.addActionListener(new ActionListener() {
+        vymazatNavstevuButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Vymazanie stlacene");
                 manager.vymazNavtevu(Integer.parseInt(poradoveCisloField.getText()), Integer.parseInt(idField.getText().toString()));
             }
         });
-        aktualizovaťNávštevuButton.addActionListener(new ActionListener() {
+        aktualizovatNavstevuButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                System.out.println("Editovanie navstevy");
                 manager.editNavtevu(Integer.parseInt(poradoveCisloField.getText()), Integer.parseInt(idField.getText().toString()),
-                        Integer.parseInt(denField.getText()),
-                        Integer.parseInt(mesiacField.getText()),
-                        Integer.parseInt(rokField.getText()),
+                        denField.getText(),
+                        mesiacField.getText(),
+                        rokField.getText(),
                         Double.parseDouble(cenaField.getText()),
                         praca1.getText(),
                         praca2.getText(),
@@ -307,6 +323,7 @@ public class App {
             }
         });
     }
+
     public JPanel getPanel(){
         return hlavny;
     }

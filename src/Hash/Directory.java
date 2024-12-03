@@ -49,6 +49,7 @@ public class Directory {
         for (int i = 0; i < oldSize; i++) {
             directory.add(directory.get(i)); // Duplicate the block addresses
         }
+        System.out.println(oldSize);
         globalDepth++;
     }
 

@@ -57,63 +57,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         }
     }
 
-
-/*
-    public int insert(T data) {
-        //vrati mi adresu bloku kde sa data nachadzaju
-        try {
-            //davam na koniec subor
-            int adresaNaVratenie;
-            if (adresaNaPrvyCiastocneVolnyBlok != 0) {
-                this.subor.seek(getAdresaBloku(adresaNaPrvyCiastocneVolnyBlok));
-                byte[] blok = new byte[velkostCluster];
-                this.subor.read(blok);
-                BlockWithHash readBlock = new BlockWithHash(blok, blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = this.adresaNaPrvyCiastocneVolnyBlok;
-                if (jePlny) {
-                    this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
-                    this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
-                }
-                    this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                    this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            } else if (adresaNaPrvyVolnyBlok != 0) {
-                this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
-                BlockWithHash readBlock = new BlockWithHash(blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = this.adresaNaPrvyVolnyBlok;
-                this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
-                this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
-                if (!jePlny) {
-                    this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                    this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                }
-                this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            } else {
-                this.subor.seek(this.subor.length());
-                BlockWithHash<T> readBlock = new BlockWithHash<>(blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = getposlednaAdresaBloku()+1;
-                if (!jePlny) {
-                    this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                    this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                }
-                this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            }
-
-            this.subor.seek(this.subor.length());
-            this.subor.write(data.toByteArray());
-        }catch (IOException ex) {
-
-        }
-    return -1;
-    }
-*/
     public void insert(T record) {
         try {
             boolean jeVlozene = false;

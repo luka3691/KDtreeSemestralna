@@ -89,11 +89,14 @@ public class TestNavstevaClass {
         return popisy;
     }
     public boolean isDummy() {
-        return this.datum.toString().equals("12-12-1970");
+        return this.datum.toString().equals("1970-12-03");
     }
 
     @Override
     public String toString() {
+        if (this.isDummy()) {
+            return "";
+        }
         return "TestNavstevaClass{" +
                 "datum=" + datum +
                 ", cena=" + cena +

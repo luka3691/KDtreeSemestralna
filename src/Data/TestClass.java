@@ -219,6 +219,7 @@ public class TestClass implements IData<TestClass> {
         for (int i = 0; i < navvstevy.length; i++) {
             if (this.navvstevy[i].isDummy()) {
                 this.navvstevy[i] = navsteva;
+                return;
             }
         }
     }
