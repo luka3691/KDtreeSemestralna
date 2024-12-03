@@ -81,11 +81,11 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
     public BitSet getHash() {
         String trimmedInput = ECV.length() > 4 ? ECV.substring(0, 4) : ECV;
 
-        // Use a message digest (e.g., SHA-256) for a larger hash space
+        // algoritmus na rovnomernejsie rozlozenie stringov
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(trimmedInput.getBytes(StandardCharsets.UTF_8));
-            return BitSet.valueOf(Arrays.copyOf(hashBytes, 4)); // First 4 bytes
+            return BitSet.valueOf(Arrays.copyOf(hashBytes, 4)); // prve 4 znaky
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

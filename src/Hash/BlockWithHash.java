@@ -63,13 +63,14 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
 
         try{
-           for (T record : this.records)  {
-               hlpOutStream.write(record.toByteArray());
-           }
             hlpOutStream.writeInt(pocetValidnych);
             hlpOutStream.writeInt(nextVolnyBlock);
             hlpOutStream.writeInt(predchadazajuciBlock);
             hlpOutStream.writeInt(localDepth);
+           for (T record : this.records)  {
+               hlpOutStream.write(record.toByteArray());
+           }
+
 
             return hlpByteArrayOutputStream.toByteArray();
 
@@ -88,6 +89,10 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         DataInputStream hlpInStream = new DataInputStream(hlpByteArrayInputStream);
 
         try {
+            this.pocetValidnych = hlpInStream.readInt();
+            this.nextVolnyBlock = hlpInStream.readInt();
+            this.predchadazajuciBlock = hlpInStream.readInt();
+            this.localDepth = hlpInStream.readInt();
             for (int i = 0; i < blockFactor; i++) {
                 byte[] zaznamy = new byte[this.records.getFirst().getSize()];
                 for (int j = 0; j < records.getFirst().getSize(); j++) {
@@ -97,10 +102,7 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
                 newData.fromByteArray(zaznamy);
                 this.records.set(i, newData);
             }
-            this.pocetValidnych = hlpInStream.readInt();
-            this.nextVolnyBlock = hlpInStream.readInt();
-            this.predchadazajuciBlock = hlpInStream.readInt();
-            this.localDepth = hlpInStream.readInt();
+
 
         } catch (IOException e) {
             throw new IllegalStateException("Error during conversion from byte array.");

@@ -318,7 +318,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         ArrayList<BlockWithHash<T>> list = new ArrayList<>();
         try {
             int maxAdresa = this.getposlednaAdresaBloku();
-            for (int i = 1; i < maxAdresa+1; i++) {
+            for (int i = 0; i < maxAdresa; i++) {
                 this.subor.seek(getAdresaBloku(i));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);

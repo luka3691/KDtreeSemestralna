@@ -34,7 +34,6 @@ public class Block <T extends IData<T>> implements IRecord<T> {
         this.fromByteArray(blockData);
     }
     public boolean insertRecord(T newData) {
-        //TODO implementovat insert
         this.records.set(pocetValidnych,newData);
         pocetValidnych++;
         return pocetValidnych == blockFactor;
@@ -48,7 +47,6 @@ public class Block <T extends IData<T>> implements IRecord<T> {
         return -1;
     }
     public boolean removeRecord(T newData, int recordNumber) {
-        //TODO implementovat insert
         this.records.remove(recordNumber);
         this.records.add(newData.createClass());
         pocetValidnych--;
@@ -138,12 +136,12 @@ public class Block <T extends IData<T>> implements IRecord<T> {
 
     @Override
     public String toString() {
-        return "Block{" +
-                "blockFactor=" + blockFactor +
-                ", pocetValidnych=" + pocetValidnych +
-                ", nextVolnyBlock=" + nextVolnyBlock +
-                ", predchadazajuciBlock=" + predchadazajuciBlock +
-                ", records=" + records.toString() +
+        return "{" +
+                "blockFactor:" + blockFactor +
+                "| pocetValidnych:" + pocetValidnych +
+                "| nextVolnyBlock:" + nextVolnyBlock +
+                "| predchadazajuciBlock:" + predchadazajuciBlock +
+                "| records:" + records.toString() +
                 '}';
     }
 }

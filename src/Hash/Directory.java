@@ -31,7 +31,6 @@ public class Directory {
                 index |= (1 << i); // Set the corresponding bit in the index
             }
         }
-        System.out.println("Generated index for depth " + globalDepth + ": " + index);
         return index;
     }
 
@@ -54,8 +53,6 @@ public class Directory {
         for (int i = 0; i < oldSize; i++) {
             directory.add(directory.get(i)); // Duplicate the block addresses
         }
-
-        System.out.println("Doubled directory. New size: " + directory.size());
         globalDepth++;
 
     }

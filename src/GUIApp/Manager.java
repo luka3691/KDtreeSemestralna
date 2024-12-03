@@ -352,11 +352,10 @@ public class Manager {
         if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
             TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
-            System.out.println("Vkladam ecv:" + ecv);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
             TestClassWithIDHash idData = new TestClassWithIDHash(cisloBlokuData, id);
             ecvHash.insert(ecvData);
-            //idHash.insert(idData);
+            idHash.insert(idData);
         }
     }
 

@@ -59,8 +59,6 @@ public class App {
     private JButton backGenerate;
     private JTextField numberOfPeople;
     private JButton submitGenerate;
-    private JSlider sliderPercenta;
-    private JLabel prekryvLabel;
     private JButton buttonVsetko;
     private JTextField menoField;
     private JTextField priezviskoField;
