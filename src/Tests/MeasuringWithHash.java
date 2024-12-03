@@ -11,18 +11,18 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MeasuringWithHash {
-    private int pocetOperacii = 100;
-    private int pocetData= 150;
+    private int pocetOperacii = 200;
+    private int pocetData= 250;
     private
     ExtendibleHash<TestClassWithHash> testHeap;
     ArrayList<TestClassWithHash> data;
     Random random;
     private int id;
     public MeasuringWithHash() {
-        TestClassWithHash test = new TestClassWithHash("Prvy", "Prvy", 0);
-        this.testHeap = new ExtendibleHash<>(400, "Data.bin", "Riadiace.bin", test);
+        TestClassWithHash test = new TestClassWithHash();
+        this.testHeap = new ExtendibleHash<>(400, "DataHash.bin", "RiadiaceHash.bin", test);
         this.data = new ArrayList<>();
-        random = new Random(1);
+        random = new Random();
         id = 1;
     }
 
@@ -33,7 +33,7 @@ public class MeasuringWithHash {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
-        TestClassWithHash test = new TestClassWithHash("Prvy", "Prvy", id);
+        TestClassWithHash test = new TestClassWithHash(); //dopnit ked testovat
         this.testHeap.insert(test);
         this.data.add(test);
         if (this.testHeap.get(test) == null) {
@@ -87,13 +87,4 @@ public class MeasuringWithHash {
     }
 
 
-    private static class Pair<T extends IData<T>> {
-        T data;
-        int adresa;
-
-        Pair(T data, int adresa) {
-            this.data = data;
-            this.adresa = adresa;
-        }
-    }
 }

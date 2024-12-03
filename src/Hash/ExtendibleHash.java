@@ -1,5 +1,7 @@
 package Hash;
 
+import Heap.HeapFile;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -29,7 +31,8 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.adresaNaPrvyCiastocneVolnyBlok = 0;
                 this.globalDepth = 1;
             } else {
-                this.readRiadiaceData();
+                //this.readRiadiaceData();
+                //zatial nemam urobene naciatanie riadiacich dat do suboru
             }
             this.directory = new Directory(this.globalDepth);
         } catch (IOException ex) {
@@ -54,63 +57,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         }
     }
 
-
-/*
-    public int insert(T data) {
-        //vrati mi adresu bloku kde sa data nachadzaju
-        try {
-            //davam na koniec subor
-            int adresaNaVratenie;
-            if (adresaNaPrvyCiastocneVolnyBlok != 0) {
-                this.subor.seek(getAdresaBloku(adresaNaPrvyCiastocneVolnyBlok));
-                byte[] blok = new byte[velkostCluster];
-                this.subor.read(blok);
-                BlockWithHash readBlock = new BlockWithHash(blok, blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = this.adresaNaPrvyCiastocneVolnyBlok;
-                if (jePlny) {
-                    this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
-                    this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
-                }
-                    this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                    this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            } else if (adresaNaPrvyVolnyBlok != 0) {
-                this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
-                BlockWithHash readBlock = new BlockWithHash(blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = this.adresaNaPrvyVolnyBlok;
-                this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
-                this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
-                if (!jePlny) {
-                    this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                    this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                }
-                this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            } else {
-                this.subor.seek(this.subor.length());
-                BlockWithHash<T> readBlock = new BlockWithHash<>(blockFactor, data);
-                boolean jePlny = readBlock.insertRecord(data);
-                adresaNaVratenie = getposlednaAdresaBloku()+1;
-                if (!jePlny) {
-                    this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                    this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                }
-                this.subor.seek(getAdresaBloku(adresaNaVratenie));
-                this.subor.write(padding(readBlock.toByteArray()));
-                return adresaNaVratenie;
-            }
-
-            this.subor.seek(this.subor.length());
-            this.subor.write(data.toByteArray());
-        }catch (IOException ex) {
-
-        }
-    return -1;
-    }
-*/
     public void insert(T record) {
         try {
             boolean jeVlozene = false;
@@ -122,13 +68,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     BlockWithHash<T> readBlock = new BlockWithHash<>( blockFactor, 1, record);
                     readBlock.insertRecord(record);
                     int adresaNaVratenie = getposlednaAdresaBloku();
-                    /*
-                    if (!jePlny) {
-                        this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                        this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
-                    }
-
-                     */
                     this.subor.seek(getAdresaBloku(adresaNaVratenie));
                     this.subor.write(padding(readBlock.toByteArray()));
                     directory.setBlockAddress(prefix, adresaNaVratenie);
@@ -178,17 +117,20 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     newBlock.insertRecord(record);
                 }
             }
-            int adresaNaVratenie = this.getposlednaAdresaBloku();
+            //dorobit kontrolovanie, ci novy blok je prazdny alebo nie
+
             this.subor.seek(getAdresaBloku(adresa));
             this.subor.write(padding(block.toByteArray()));
-
-            // Update directory pointers
+// Update directory pointers
             this.directory.setBlockAddress(prefix, adresa);
-            this.subor.seek(getAdresaBloku(adresaNaVratenie));
-            this.subor.write(padding(newBlock.toByteArray()));
-            BitSet newPrefix = (BitSet) prefix.clone();
-            newPrefix.set(localDepth); // Flip the next significant bit
-            this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
+            if (!newBlock.isEmpty()) {
+                int adresaNaVratenie = this.getposlednaAdresaBloku();
+                this.subor.seek(getAdresaBloku(adresaNaVratenie));
+                this.subor.write(padding(newBlock.toByteArray()));
+                BitSet newPrefix = (BitSet) prefix.clone();
+                newPrefix.set(localDepth); // Flip the next significant bit
+                this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
+            }
 
         } catch (IOException ex) {
 
@@ -376,7 +318,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         ArrayList<BlockWithHash<T>> list = new ArrayList<>();
         try {
             int maxAdresa = this.getposlednaAdresaBloku();
-            for (int i = 0; i < maxAdresa; i++) {
+            for (int i = 1; i < maxAdresa+1; i++) {
                 this.subor.seek(getAdresaBloku(i));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);

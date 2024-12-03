@@ -9,27 +9,35 @@ import java.util.BitSet;
 public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
     private String meno;
     private String priezvisko;
+    private String ECV;
     private int menoValidCharacters;
     private int priezviskoValidCharacters;
+    private int ECVvalidCharacters;
     private int id;
     private static int MENO_MAX = 20;
     private static int PRIEZVISKO_MAX = 30;
+
+    private static int ECV_MAX = 10;
     private TestNavstevaClass[] navvstevy;
 
     public TestClassWithHash() {
         this.meno = "";
         this.priezvisko = "";
+        this.ECV = "";
         this.id = 0;
         menoValidCharacters = 0;
         priezviskoValidCharacters = 0;
+        ECVvalidCharacters = 0;
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
-    public TestClassWithHash(String meno, String priezvisko, int id) {
+    public TestClassWithHash(String meno, String priezvisko, int id, String ECV) {
         this.meno = meno;
         this.priezvisko = priezvisko;
         this.id = id;
+        this.ECV = ECV;
         menoValidCharacters = meno.length();
         priezviskoValidCharacters = priezvisko.length();
+        ECVvalidCharacters = ECV.length();
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     @Override
@@ -52,6 +60,8 @@ public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
             hlpOutStream.writeChars(normalizeString(priezvisko, PRIEZVISKO_MAX,'0'));
             hlpOutStream.writeInt(priezviskoValidCharacters);
             hlpOutStream.writeInt(id);
+            hlpOutStream.writeChars(normalizeString(ECV, ECV_MAX,'0'));
+            hlpOutStream.writeInt(ECVvalidCharacters);
             return hlpByteArrayOutputStream.toByteArray();
         } catch (IOException ex) {
 
@@ -77,6 +87,11 @@ public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
             this.priezviskoValidCharacters = hlpOutStream.readInt();
             this.priezvisko = this.priezvisko.substring(0, this.priezviskoValidCharacters);
             this.id = hlpOutStream.readInt();
+            for (int i = 0; i < ECV_MAX; i++) {
+                this.ECV += hlpOutStream.readChar();
+            }
+            this.ECVvalidCharacters = hlpOutStream.readInt();
+            this.ECV = this.ECV.substring(0, this.ECVvalidCharacters);
         } catch (IOException ex) {
 
         }
@@ -84,7 +99,7 @@ public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
 
     @Override
     public int getSize() {
-        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX) + Integer.BYTES * 3 ; // + navstevy.getSize()
+        return Character.BYTES * (MENO_MAX + PRIEZVISKO_MAX + ECV_MAX) + Integer.BYTES * 4 ; // + navstevy.getSize()
     }
 
     @Override
@@ -110,5 +125,29 @@ public class TestClassWithHash implements IDataWithHash<TestClassWithHash> {
 
     public int getId() {
         return id;
+    }
+
+    public void setECV(String ECV) {
+        this.ECV = ECV;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getECV() {
+        return ECV;
+    }
+
+    public TestNavstevaClass[] getNavvstevy() {
+        return navvstevy;
+    }
+
+    public String getMeno() {
+        return meno;
+    }
+
+    public String getPriezvisko() {
+        return priezvisko;
     }
 }

@@ -1,6 +1,8 @@
 package Heap;
 
 import Data.IData;
+import Hash.BlockWithHash;
+import Hash.IDataWithHash;
 import Heap.Block;
 
 import java.io.*;
@@ -258,6 +260,25 @@ public class HeapFile<T extends IData<T>> {
         }
         return null;
     }
+    public T edit(int adresaBloku, T original, T nove) {
+        try {
+            this.subor.seek(getAdresaBloku(adresaBloku));
+            byte[] blok = new byte[velkostCluster];
+            this.subor.read(blok);
+            Block<T> readBlock = new Block<>(blok, blockFactor, original);
+            for (int i = 0; i < readBlock.getRecords().size(); i++) {
+                if (original.ownEquals(readBlock.getRecords().get(i))) {
+                    readBlock.getRecords().set(i, nove);
+                    this.subor.seek(getAdresaBloku(adresaBloku));
+                    this.subor.write(padding(readBlock.toByteArray()));
+                }
+            }
+        }catch (IOException ex) {
+
+        }
+        return null;
+    }
+
 
     public T edit(int adresaBloku, T originalDataSKlucom, T noveDataSKlucom) {
         //vrati data podla adresy
@@ -310,5 +331,22 @@ public class HeapFile<T extends IData<T>> {
         byte [] paddedBloc = new byte[velkostCluster];
         System.arraycopy(block, 0, paddedBloc, 0, block.length);
         return paddedBloc;
+    }
+    public ArrayList<Block<T>> getVsetkyBloky(T data) {
+        ArrayList<Block<T>> list = new ArrayList<>();
+        try {
+            int maxAdresa = this.getposlednaAdresaBloku();
+            for (int i = 1; i < maxAdresa+1; i++) {
+                this.subor.seek(getAdresaBloku(i));
+                byte[] blok = new byte[velkostCluster];
+                this.subor.read(blok);
+                Block<T> readBlock = new Block<>(blok, blockFactor, data);
+                list.add(readBlock);
+            }
+        }catch (IOException ex) {
+
+        }
+
+        return list;
     }
 }

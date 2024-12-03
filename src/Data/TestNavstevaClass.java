@@ -2,6 +2,7 @@ package Data;
 
 import java.io.*;
 import java.time.LocalDate;
+import java.util.Arrays;
 
 public class TestNavstevaClass {
     private LocalDate datum;
@@ -11,18 +12,38 @@ public class TestNavstevaClass {
     public TestNavstevaClass(String datum, double cena, String[] popisy) {
         this.datum = LocalDate.parse(datum);
         this.cena = cena;
-        this.popisy = popisy;
+        if (popisy.length < 10) {
+            String[] temp = new String[10];
+            for (int i = 0; i < popisy.length; i++) {
+                temp[i] = popisy[i]; // Copy existing elements
+            }
+            for (int i = popisy.length; i < 10; i++) {
+                temp[i] = " "; // Fill remaining slots with empty strings
+            }
+            this.popisy = temp;
+        } else {
+            this.popisy = popisy;
+        }
+        //this.navvstevy = new Data.TestNavstevaClass[5];
+    }
+    public TestNavstevaClass() {
+        this.datum = LocalDate.parse("1970-12-03");
+        this.cena = 0.0;
+        this.popisy = new String[] {" ", " ", " ", " ", " ", " ", " ", " ", " ", " "};
         //this.navvstevy = new Data.TestNavstevaClass[5];
     }
     public byte[] toByteArray() {
         ByteArrayOutputStream hlpByteArrayOutputStream= new ByteArrayOutputStream();
         DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
         try {
-            hlpOutStream.writeChars(datum.toString());
-            hlpOutStream.writeDouble(cena);
+            hlpOutStream.writeInt(datum.getYear());
+            hlpOutStream.writeInt(datum.getMonthValue());
+            hlpOutStream.writeInt(datum.getDayOfMonth());
+
             for (int i = 0; i < this.popisy.length; i++) {
                 hlpOutStream.writeChars(normalizeString(this.popisy[i], POPIS_MAX,' '));
             }
+            hlpOutStream.writeDouble(cena);
             return hlpByteArrayOutputStream.toByteArray();
         } catch (IOException ex) {
 
@@ -37,7 +58,7 @@ public class TestNavstevaClass {
 
 
     public int getSize() {
-        return datum.toString().length() * Character.BYTES + popisy.length * Character.BYTES * POPIS_MAX + Double.BYTES; // + navstevy.getSize()
+        return Integer.BYTES * 3 + 10 * Character.BYTES * POPIS_MAX + Double.BYTES; // + navstevy.getSize()
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {
@@ -54,5 +75,32 @@ public class TestNavstevaClass {
             normalized.append(paddingChar);
         }
         return normalized.toString();
+    }
+
+    public LocalDate getDatum() {
+        return datum;
+    }
+
+    public double getCena() {
+        return cena;
+    }
+
+    public String[] getPopisy() {
+        return popisy;
+    }
+    public boolean isDummy() {
+        return this.datum.toString().equals("1970-12-03");
+    }
+
+    @Override
+    public String toString() {
+        if (this.isDummy()) {
+            return "";
+        }
+        return "TestNavstevaClass{" +
+                "datum=" + datum +
+                ", cena=" + cena +
+                ", popisy=" + Arrays.toString(popisy) +
+                '}';
     }
 }

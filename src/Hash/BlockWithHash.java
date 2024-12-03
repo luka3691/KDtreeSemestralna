@@ -113,6 +113,9 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     public boolean isFull() {
         return this.pocetValidnych == this.blockFactor;
     }
+    public boolean isEmpty() {
+        return this.pocetValidnych == 0;
+    }
 
     @Override
     public int getSize() {
@@ -161,5 +164,17 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
             this.records.add(getFirst.createClass());
         }
         this.pocetValidnych = 0;
+    }
+
+    @Override
+    public String toString() {
+        return "BlockWithHash{" +
+                "blockFactor=" + blockFactor +
+                ", localDepth=" + localDepth +
+                ", pocetValidnych=" + pocetValidnych +
+                ", nextVolnyBlock=" + nextVolnyBlock +
+                ", predchadazajuciBlock=" + predchadazajuciBlock +
+                ", records=" + records.toString() +
+                '}';
     }
 }
