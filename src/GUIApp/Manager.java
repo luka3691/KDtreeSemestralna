@@ -27,6 +27,8 @@ public class Manager {
     private String idRiadiace = "IdRiadiace.bin";
     private static final char[] CHAR_POOL = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
     private static final int BASE = CHAR_POOL.length;
+    private static final char[] CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static int counter = 0;
     public Manager() {
         heapFile = new HeapFile<>(5000, heapFileName, heapRiadiace, new TestClass());
         ecvHash = new ExtendibleHash<>(400, ecvFileName, ecvRiadiace, new TestClassWithECVHash());
@@ -350,10 +352,11 @@ public class Manager {
         if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
             TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
+            System.out.println("Vkladam ecv:" + ecv);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
             TestClassWithIDHash idData = new TestClassWithIDHash(cisloBlokuData, id);
             ecvHash.insert(ecvData);
-            idHash.insert(idData);
+            //idHash.insert(idData);
         }
     }
 
@@ -463,7 +466,7 @@ public class Manager {
 
     public void insertData(int pocetData) {
         for (int i = 0; i< pocetData; i++) {
-            String ecv = getNextString(this.ecvGenerator);
+            String ecv = getNextUniqueString();
             this.insert("", "", idGenerator, ecv);
             this.idGenerator++;
             this.ecvGenerator = ecv;
@@ -480,5 +483,25 @@ public class Manager {
 
     public ArrayList<BlockWithHash<TestClassWithECVHash>> getECVBlocks() {
         return this.ecvHash.getVsetkyBloky(new TestClassWithECVHash());
+    }
+    public static synchronized String getNextUniqueString() {
+        if (counter >= Math.pow(BASE, 4)) {
+            throw new IllegalStateException("Exceeded the limit for unique 4-character strings.");
+        }
+        return toBase62(counter++);
+    }
+
+    private static String toBase62(int number) {
+        StringBuilder result = new StringBuilder();
+        do {
+            result.insert(0, CHARACTERS[number % BASE]);
+            number /= BASE;
+        } while (number > 0);
+
+        while (result.length() < 4) {
+            result.insert(0, CHARACTERS[0]); // Pad with the first character to ensure 4 characters
+        }
+
+        return result.toString();
     }
 }

@@ -31,6 +31,7 @@ public class Directory {
                 index |= (1 << i); // Set the corresponding bit in the index
             }
         }
+        System.out.println("Generated index for depth " + globalDepth + ": " + index);
         return index;
     }
 
@@ -46,11 +47,17 @@ public class Directory {
 
     public void doubleDirectory() {
         int oldSize = directory.size();
+        if (globalDepth >= 26) { // Example: Limit to 26 bits (2^26 entries)
+            throw new IllegalStateException("Maximum directory depth reached!");
+        }
+        System.out.println(oldSize);
         for (int i = 0; i < oldSize; i++) {
             directory.add(directory.get(i)); // Duplicate the block addresses
         }
-        System.out.println(oldSize);
+
+        System.out.println("Doubled directory. New size: " + directory.size());
         globalDepth++;
+
     }
 
     public int getGlobalDepth() {

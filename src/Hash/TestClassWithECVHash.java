@@ -3,6 +3,10 @@ package Hash;
 import Data.IData;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.BitSet;
 
 public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash> {
@@ -75,6 +79,17 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
 
     @Override
     public BitSet getHash() {
+        String trimmedInput = ECV.length() > 4 ? ECV.substring(0, 4) : ECV;
+
+        // Use a message digest (e.g., SHA-256) for a larger hash space
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hashBytes = digest.digest(trimmedInput.getBytes(StandardCharsets.UTF_8));
+            return BitSet.valueOf(Arrays.copyOf(hashBytes, 4)); // First 4 bytes
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        /*
         // Limit to first 4 characters or less if input is shorter
         String trimmedInput = ECV.length() > 4 ? ECV.substring(0, 4) : ECV;
 
@@ -93,6 +108,8 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
             }
         }
         return bitSet;
+
+         */
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {

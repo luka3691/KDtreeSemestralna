@@ -33,7 +33,7 @@ public class MeasuringWithHash {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
-        TestClassWithHash test = new TestClassWithHash(); //dopnit ked testovat
+        TestClassWithHash test = new TestClassWithHash("Prvy", "prvyy", id, "nenene"); //dopnit ked testovat
         this.testHeap.insert(test);
         this.data.add(test);
         if (this.testHeap.get(test) == null) {
