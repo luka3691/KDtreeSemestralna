@@ -81,6 +81,9 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                         if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
                             directory.doubleDirectory();
                         }
+                        if (adresa==7) {
+                            System.out.println("tu");
+                        }
                         splitBlock(readBlock, prefix, adresa);
                     } else {
                         readBlock.insertRecord(record);
@@ -117,7 +120,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     newBlock.insertRecord(record);
                 }
             }
-            //dorobit kontrolovanie, ci novy blok je prazdny alebo nie
 
             this.subor.seek(getAdresaBloku(adresa));
             this.subor.write(padding(block.toByteArray()));
@@ -274,7 +276,8 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     public T get(T dataSKlucom) {
         //vrati data podla adresy
         try {
-            int adresa = this.directory.getBlockAddress(dataSKlucom.getHash());
+            BitSet hash = dataSKlucom.getHash();
+            int adresa = this.directory.getBlockAddress(hash);
             this.subor.seek(getAdresaBloku(adresa));
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);

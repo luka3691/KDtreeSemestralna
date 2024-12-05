@@ -12,6 +12,7 @@ import java.util.Random;
 public class Tester {
     private int pocetOperacii = 100;
     private int pocetData= 202;
+    private int idGenerator;
     private HeapFile<TestClass> heapFile;
     private ExtendibleHash<TestClassWithECVHash> ecvHash;
     private ExtendibleHash<TestClassWithIDHash> idHash;
@@ -23,12 +24,17 @@ public class Tester {
     private String idRiadiace = "IdRiadiace.bin";
     ArrayList<TestClassWithHash> data;
     Random random;
+
+    private static final char[] CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final int BASE = CHARACTERS.length;
+    private static int counter = 0;
     public Tester() {
-        heapFile = new HeapFile<>(400, heapFileName, heapRiadiace, new TestClass());
-        ecvHash = new ExtendibleHash<>(400, ecvFileName, ecvRiadiace, new TestClassWithECVHash());
+        heapFile = new HeapFile<>(5000, heapFileName, heapRiadiace, new TestClass());
+        ecvHash = new ExtendibleHash<>(100, ecvFileName, ecvRiadiace, new TestClassWithECVHash());
         idHash = new ExtendibleHash<>(400, idFileName, idRiadiace, new TestClassWithIDHash());
         this.data = new ArrayList<>();
         random = new Random();
+        idGenerator = 1;
 
     }
 
@@ -64,13 +70,11 @@ public class Tester {
 
     }
     public void insert(String meno, String priezvisko, int id, String ecv) {
-        if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
+        if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null) {
             TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
-            TestClassWithIDHash idData = new TestClassWithIDHash(cisloBlokuData, id);
             ecvHash.insert(ecvData);
-            idHash.insert(idData);
         }
     }
     public TestClass findUsingID(int idcko) {
@@ -86,5 +90,50 @@ public class Tester {
         data.setECV(ecv);
         data.setId(idData.getIdcko());
         return heapFile.get(idData.getAdresa(), data);
+    }
+    public void insertData(int pocetData) {
+        for (int i = 0; i< pocetData; i++) {
+            String ecv = getNextUniqueString();
+            if (ecv.equals("AASY") || ecv.equals("AAAQ")) { //AABV, AACY, AAEV
+                System.out.println("tu");
+            }
+            this.insert("", "", idGenerator, ecv);
+            this.idGenerator++;
+        }
+        this.ecvHash.getVsetkyBloky(new TestClassWithECVHash());
+        this.ecvHash.get(new TestClassWithECVHash(0, "AAAQ", 0));
+        this.ecvHash.get(new TestClassWithECVHash(0, "AASY", 0));
+    }
+
+    public ArrayList<Block<TestClass>> getHeapBlocks() {
+        return this.heapFile.getVsetkyBloky(new TestClass());
+    }
+
+    public ArrayList<BlockWithHash<TestClassWithIDHash>> getIDBlocks() {
+        return this.idHash.getVsetkyBloky(new TestClassWithIDHash());
+    }
+
+    public ArrayList<BlockWithHash<TestClassWithECVHash>> getECVBlocks() {
+        return this.ecvHash.getVsetkyBloky(new TestClassWithECVHash());
+    }
+    public static synchronized String getNextUniqueString() {
+        if (counter >= Math.pow(BASE, 4)) {
+            throw new IllegalStateException("Uz neexistuje viac.");
+        }
+        return toBase62(counter++);
+    }
+
+    private static String toBase62(int number) {
+        StringBuilder result = new StringBuilder();
+        do {
+            result.insert(0, CHARACTERS[number % BASE]);
+            number /= BASE;
+        } while (number > 0);
+
+        while (result.length() < 4) {
+            result.insert(0, CHARACTERS[0]); //vyplnennie
+        }
+
+        return result.toString();
     }
 }

@@ -4,6 +4,7 @@ import Data.IData;
 import Data.TestClass;
 import Hash.BlockWithHash;
 import Hash.ExtendibleHash;
+import Hash.TestClassWithECVHash;
 import Hash.TestClassWithHash;
 import Heap.HeapFile;
 
@@ -11,16 +12,23 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MeasuringWithHash {
-    private int pocetOperacii = 200;
-    private int pocetData= 250;
+    private int pocetOperacii = 400;
+    private int pocetData= 750;
     private
     ExtendibleHash<TestClassWithHash> testHeap;
+    ExtendibleHash<TestClassWithECVHash> ecvTest;
+
     ArrayList<TestClassWithHash> data;
     Random random;
     private int id;
+    private static final char[] CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
+    private static final int BASE = CHARACTERS.length;
+    private static int counter = 0;
     public MeasuringWithHash() {
         TestClassWithHash test = new TestClassWithHash();
+        TestClassWithECVHash test2 = new TestClassWithECVHash();
         this.testHeap = new ExtendibleHash<>(400, "DataHash.bin", "RiadiaceHash.bin", test);
+        this.ecvTest = new ExtendibleHash<>(400, "DataECV.bin", "RiadiaceECV.bin", test2);
         this.data = new ArrayList<>();
         random = new Random();
         id = 1;
@@ -33,6 +41,9 @@ public class MeasuringWithHash {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
+        /*
+
+         */
         TestClassWithHash test = new TestClassWithHash("Prvy", "prvyy", id, "nenene"); //dopnit ked testovat
         this.testHeap.insert(test);
         this.data.add(test);

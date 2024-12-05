@@ -15,6 +15,8 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     private int predchadazajuciBlock;
     private ArrayList<T> records;
 //vytvorim si blok s jednym zaznamom a ostanymi prazndimy
+
+    //ostranit block factor
     public BlockWithHash(int blockFactor,int localDepth, T instanciaTriedy) {
         this.blockFactor = blockFactor;
 

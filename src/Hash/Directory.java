@@ -49,7 +49,6 @@ public class Directory {
         if (globalDepth >= 26) { // Maximalne 26 bits (2^26)
             throw new IllegalStateException("Maximalna hlbka dosiahnuta!");
         }
-        System.out.println(oldSize);
         for (int i = 0; i < oldSize; i++) {
             directory.add(directory.get(i)); // Duplikovanie blokovych adries
         }

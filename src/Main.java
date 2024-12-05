@@ -12,8 +12,8 @@ public class Main {
 
         MeasuringWithHash measuring = new MeasuringWithHash();
         //testovanie heap file
-        //TesterHeap tester = new TesterHeap();
-        //tester.insert();
+        //Tester tester = new Tester();
+        //tester.insertData(30);
 
         //Measuring measuring = new Measuring();
 

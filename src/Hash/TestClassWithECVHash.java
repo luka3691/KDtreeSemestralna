@@ -85,7 +85,11 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(trimmedInput.getBytes(StandardCharsets.UTF_8));
+            if (ECV.equals("AASY") || ECV.equals("AAAQ")) {
+                System.out.println("Hash bytes for '" + trimmedInput + "': " + Arrays.toString(Arrays.copyOf(hashBytes, 4)));
+            }
             return BitSet.valueOf(Arrays.copyOf(hashBytes, 4)); // prve 4 znaky
+
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

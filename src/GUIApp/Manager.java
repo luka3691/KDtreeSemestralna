@@ -169,6 +169,9 @@ public class Manager {
     public void insertData(int pocetData) {
         for (int i = 0; i< pocetData; i++) {
             String ecv = getNextUniqueString();
+            if (ecv.equals("AASY") || ecv.equals("AAAQ")) {
+                System.out.println("tu");
+            }
             this.insert("", "", idGenerator, ecv);
             this.idGenerator++;
             this.ecvGenerator = ecv;
