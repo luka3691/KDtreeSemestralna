@@ -11,8 +11,11 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     private int globalDepth;
     private int blockFactor;
     private int velkostCluster;
+    /*
     private int adresaNaPrvyVolnyBlok; // toto neukazuje na koniec suboru
     private int adresaNaPrvyCiastocneVolnyBlok;
+
+     */
     private Directory directory;
     private RandomAccessFile subor;
     private RandomAccessFile riadiaceData;
@@ -27,8 +30,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.velkostCluster = velkostClustra;
                 int velkostVkladanychDat = insanciaGenerickej.getSize();
                 blockFactor = Math.floorDiv(velkostClustra - Integer.BYTES*4, velkostVkladanychDat);
-                this.adresaNaPrvyVolnyBlok = 0;
-                this.adresaNaPrvyCiastocneVolnyBlok = 0;
                 this.globalDepth = 1;
             } else {
                 //this.readRiadiaceData();
@@ -49,8 +50,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             DataInputStream hlpOutStream = new DataInputStream(hlpByteArrayInputStream);
             this.blockFactor = hlpOutStream.readInt();
             this.velkostCluster = hlpOutStream.readInt();
-            this.adresaNaPrvyVolnyBlok = hlpOutStream.readInt();
-            this.adresaNaPrvyCiastocneVolnyBlok = hlpOutStream.readInt();
 
         } catch (IOException ex) {
 
@@ -109,11 +108,11 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             BlockWithHash<T> newBlock = new BlockWithHash<T>(blockFactor, localDepth + 1, block.getRecords().getFirst().createClass());
             List<T> recordsToRedistribute = new ArrayList<>(block.getRecords());
             block.clearRecords();
-
+            BitSet originalPrefix = prefix.get(0, localDepth);
             for (T record : recordsToRedistribute) {
                 BitSet hash = record.getHash();
                 BitSet newPrefix = hash.get(0, localDepth + 1);
-                BitSet originalPrefix = prefix.get(0, localDepth);
+
                 if (originalPrefix.equals(newPrefix)) {
                     block.insertRecord(record);
                 } else {
@@ -124,7 +123,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             this.subor.seek(getAdresaBloku(adresa));
             this.subor.write(padding(block.toByteArray()));
 // Update directory pointers
-            this.directory.setBlockAddress(prefix, adresa);
+            this.directory.setBlockAddress(originalPrefix, adresa);
             if (!newBlock.isEmpty()) {
                 int adresaNaVratenie = this.getposlednaAdresaBloku();
                 this.subor.seek(getAdresaBloku(adresaNaVratenie));
@@ -156,68 +155,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         return  ((int)this.subor.length() / velkostCluster) ;
     }
 /*
-    public boolean delete(T data) {
-        try {
-            this.subor.seek(getAdresaBloku(adresaBloku));
-            byte[] blok = new byte[velkostCluster];
-            this.subor.read(blok);
-            BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, data);
-            int cisloRecordu = readBlock.findRecord(data);
-            if (cisloRecordu == -1) {
-                System.out.println("Error");
-                return false;
-            } else {
-                boolean jePrazdny = readBlock.removeRecord(data, cisloRecordu);
-                if (jePrazdny) {
-                    boolean mazem = true;
-                    int aktualnaAdresa = adresaBloku;
-                    if (this.adresaNaPrvyCiastocneVolnyBlok == aktualnaAdresa) {
-                        this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
-                    }
-                    if (adresaBloku == getposlednaAdresaBloku()) {
-                        while (mazem) {
-                            //problematicke pretypovanie adresy0&
-                            aktualnaAdresa = getposlednaAdresaBloku();
-                            if (readBlock.getPocetValidnych() != 0) {
-                                mazem = false;
-                            } else {
-                                if (this.adresaNaPrvyVolnyBlok == aktualnaAdresa) {
-                                    this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
-                                }
-                                this.odoberZoZretazenia(readBlock, aktualnaAdresa, data);
-                                this.zkratBlokOdKonca();
-                                this.subor.seek(getAdresaBloku(aktualnaAdresa));
-                                blok = new byte[velkostCluster];
-                                this.subor.read(blok);
-                                readBlock = new BlockWithHash<>(blok, blockFactor, data);
-                            }
-                        }
-                    } else {
-                        this.odoberZoZretazenia(readBlock, adresaBloku, data);
-                        this.vlozDoZretazenia(readBlock, adresaBloku, this.adresaNaPrvyVolnyBlok, data);
-                        this.adresaNaPrvyVolnyBlok = adresaBloku;
-                    }
-                } else {
-                   if (readBlock.getPocetValidnych() == readBlock.getRecords().size() - 1) { //bola plna kapacita a teraz nie je
-                       this.vlozDoZretazenia(readBlock, adresaBloku, this.adresaNaPrvyCiastocneVolnyBlok, data);
-                       this.adresaNaPrvyCiastocneVolnyBlok = adresaBloku;
-                   } else  {
-                       this.subor.seek(getAdresaBloku(adresaBloku));
-                       this.subor.write(padding(readBlock.toByteArray()));
-                   }
-
-                }
-            }
-        } catch (IOException ex) {
-
-        }
-        return true;
-        //ked sa mi vyprazdni na konci bloku tak orezem subor
-        //ked blokoval bloky ine pozriem si
-        //urobim si cyklus a pozeram valid count a orezavam, musim menit referencie
-        //ked mazem a je uplne volny tak zobiem blok, ulozim do neho adresu aktualne volneho prveho bloku a prepisem v heapfile adresu na prvy volny na aktualny
-    }
-*/
     //toto sa pouziva len ked sa vymaze
     private void vlozDoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, int adresaNaUzZretazenyBlok, T data) throws IOException {
         readBlock.setNextVolnyBlock(adresaNaUzZretazenyBlok); // zapiseme iba dalsi volny blok kedze predosli neexistuje (ja som najnovsi)
@@ -273,6 +210,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         }
 
     }
+ */
     public T get(T dataSKlucom) {
         //vrati data podla adresy
         try {
@@ -301,8 +239,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
             hlpOutStream.writeInt(blockFactor);
             hlpOutStream.writeInt(velkostCluster);
-            hlpOutStream.writeInt(adresaNaPrvyVolnyBlok);
-            hlpOutStream.writeInt(adresaNaPrvyCiastocneVolnyBlok);
             this.riadiaceData.seek(0);
             this.riadiaceData.write(hlpByteArrayOutputStream.toByteArray());
             this.riadiaceData.close();
