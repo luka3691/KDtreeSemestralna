@@ -8,7 +8,7 @@ import java.util.BitSet;
 import java.util.List;
 
 public class ExtendibleHash<T extends IDataWithHash<T>> {
-    private int globalDepth;
+    //private int globalDepth;
     private int blockFactor;
     private int velkostCluster;
     /*
@@ -30,12 +30,12 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.velkostCluster = velkostClustra;
                 int velkostVkladanychDat = insanciaGenerickej.getSize();
                 blockFactor = Math.floorDiv(velkostClustra - Integer.BYTES*4, velkostVkladanychDat);
-                this.globalDepth = 1;
+                this.directory = new Directory(1);
             } else {
-                //this.readRiadiaceData();
+                this.readRiadiaceData();
                 //zatial nemam urobene naciatanie riadiacich dat do suboru
             }
-            this.directory = new Directory(this.globalDepth);
+
         } catch (IOException ex) {
 
         }
@@ -50,7 +50,17 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             DataInputStream hlpOutStream = new DataInputStream(hlpByteArrayInputStream);
             this.blockFactor = hlpOutStream.readInt();
             this.velkostCluster = hlpOutStream.readInt();
-
+            int globalDepth = hlpOutStream.readInt();
+            int velkostAdresaru = hlpOutStream.readInt();
+            byte[] directory = new byte[velkostAdresaru*Integer.BYTES];
+            this.riadiaceData.readFully(directory);
+            ByteArrayInputStream hlpByteArrayInputStreamAdresy = new ByteArrayInputStream(directory);
+            DataInputStream hlpOutStreamAdresy = new DataInputStream(hlpByteArrayInputStreamAdresy);
+            ArrayList<Integer> directoryData = new ArrayList<>();
+            for (int i = 0; i < velkostAdresaru; i++) {
+                directoryData.add(hlpOutStreamAdresy.readInt());
+            }
+            this.directory = new Directory(globalDepth, directoryData);
         } catch (IOException ex) {
 
         }
@@ -79,9 +89,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     if (readBlock.isFull()) {
                         if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
                             directory.doubleDirectory();
-                        }
-                        if (adresa==7) {
-                            System.out.println("tu");
                         }
                         splitBlock(readBlock, prefix, adresa);
                     } else {
@@ -112,7 +119,6 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             for (T record : recordsToRedistribute) {
                 BitSet hash = record.getHash();
                 BitSet newPrefix = hash.get(0, localDepth + 1);
-
                 if (originalPrefix.equals(newPrefix)) {
                     block.insertRecord(record);
                 } else {
@@ -239,6 +245,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
             DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
             hlpOutStream.writeInt(blockFactor);
             hlpOutStream.writeInt(velkostCluster);
+            hlpOutStream.write(this.directory.toByteArray());
             this.riadiaceData.seek(0);
             this.riadiaceData.write(hlpByteArrayOutputStream.toByteArray());
             this.riadiaceData.close();

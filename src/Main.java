@@ -13,7 +13,7 @@ public class Main {
         //tester.insertData(30);
 
         //Measuring measuring = new Measuring();
-
+        //MeasuringWithHash measuring = new MeasuringWithHash();
         measuring.insert();
         measuring.test();
 

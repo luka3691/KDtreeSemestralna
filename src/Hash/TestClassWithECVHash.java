@@ -80,7 +80,7 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
     @Override
     public BitSet getHash() {
         String trimmedInput = ECV.length() > 4 ? ECV.substring(0, 4) : ECV;
-
+/*
         // algoritmus na rovnomernejsie rozlozenie stringov
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -93,7 +93,14 @@ public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash>
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+*/
+        int hash = (trimmedInput.charAt(0) << 24) |  // Najvyššie 8 bitov
+                (trimmedInput.charAt(1) << 16) |  // Nasledujúcich 8 bitov
+                (trimmedInput.charAt(2) << 8)  |  // Nasledujúcich 8 bitov
+                (trimmedInput.charAt(3));         // Najnižších 8 bitov
 
+        // Prevod na BitSet
+        return BitSet.valueOf(new long[] {hash & 0xFFFFFFFFL});
     }
 
     public static String normalizeString(String input, int fixedLength, char paddingChar) {

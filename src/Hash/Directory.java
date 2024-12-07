@@ -1,5 +1,7 @@
 package Hash;
 
+import javax.print.attribute.standard.MediaSize;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.BitSet;
 //The directories store addresses of the buckets in pointers.
@@ -15,6 +17,10 @@ public class Directory {
         this.globalDepth = initialDepth;
         this.directory = new ArrayList<>();
         initializeDirectory(initialDepth);
+    }
+    public Directory(int initialDepth, ArrayList<Integer> directory) {
+        this.globalDepth = initialDepth;
+        this.directory = directory;
     }
 
     private void initializeDirectory(int depth) {
@@ -55,6 +61,23 @@ public class Directory {
         globalDepth++;
 
     }
+    public byte[] toByteArray() {
+        ByteArrayOutputStream hlpByteArrayOutputStream= new ByteArrayOutputStream();
+        DataOutputStream hlpOutStream = new DataOutputStream(hlpByteArrayOutputStream);
+        try {
+            hlpOutStream.writeInt(globalDepth);
+            int pocetAdries = this.directory.size();
+            hlpOutStream.writeInt(pocetAdries);
+            for (int i = 0; i < pocetAdries; i++) {
+                hlpOutStream.writeInt(this.directory.get(i));
+            }
+            return hlpByteArrayOutputStream.toByteArray();
+        } catch (IOException ex) {
+
+        }
+        return new byte[0];
+    }
+
 
     public int getGlobalDepth() {
         return globalDepth;

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MeasuringWithHashString {
-    private int pocetOperacii = 50;
-    private int pocetData= 500;
+    private int pocetOperacii = 5;
+    private int pocetData= 20;
     private ExtendibleHash<TestClassWithECVHash> ecvTest;
 
     ArrayList<TestClassWithECVHash> data;
@@ -20,11 +20,11 @@ public class MeasuringWithHashString {
     private static final int BASE = CHARACTERS.length;
     private static int counter = 0;
     public MeasuringWithHashString() {
-        TestClassWithHash test = new TestClassWithHash();
+        //TestClassWithHash test = new TestClassWithHash();
         TestClassWithECVHash test2 = new TestClassWithECVHash();
         this.ecvTest = new ExtendibleHash<>(400, "DataECV.bin", "RiadiaceECV.bin", test2);
         this.data = new ArrayList<>();
-        random = new Random(1);
+        random = new Random();
         id = 1;
     }
 
@@ -39,11 +39,18 @@ public class MeasuringWithHashString {
 
          */
         TestClassWithECVHash test = new TestClassWithECVHash(id, getNextUniqueString(), id); //dopnit ked testovat
+        TestClassWithECVHash test2 = new TestClassWithECVHash(id, "AADE", id);
+
         this.ecvTest.insert(test);
         this.data.add(test);
         if (this.ecvTest.get(test) == null) {
             System.out.println("Error");
         }
+        /*
+        if (this.ecvTest.get(test2) == null && id > 113) {
+            System.out.println("TI");
+        }
+         */
         id++;
     }
 
@@ -61,9 +68,7 @@ public class MeasuringWithHashString {
                     break;
                 case 2:
                     TestClassWithECVHash data = this.data.get(random.nextInt(0, this.data.size()-1));
-                    if (data.getECV().equals("AADE")) {
-                        System.out.println("TI");
-                    }
+
                     if (this.ecvTest.get(data) == null) {
                         System.out.println("Error");
                     } else {
