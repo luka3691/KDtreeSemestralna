@@ -105,9 +105,16 @@ public class App {
         frame.pack();
         frame.setVisible(true);
 
+
         cl = (CardLayout)hlavny.getLayout();
 
         Manager manager = new Manager();
+        frame.addWindowListener(new java.awt.event.WindowAdapter() {
+                                    public void windowClosing(java.awt.event.WindowEvent e) {
+                                        manager.endApp();
+                                    }
+                                }
+        );
 
         backVsetko.addActionListener(new ActionListener() {
             @Override
@@ -179,7 +186,7 @@ public class App {
         option12.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //manager.clear();
+                manager.deleteData();
             }
         });
         generateButton.addActionListener(new ActionListener() {

@@ -7,6 +7,7 @@ import Hash.*;
 import Heap.Block;
 import Heap.HeapFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,7 +16,6 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Manager {
     private int idGenerator;
-    private String ecvGenerator;
     private HeapFile<TestClass> heapFile;
     private ExtendibleHash<TestClassWithECVHash> ecvHash;
     private ExtendibleHash<TestClassWithIDHash> idHash;
@@ -30,11 +30,14 @@ public class Manager {
     private static final char[] CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
     private static int counter = 0;
     public Manager() {
+        this.intialize();
+    }
+
+    private void intialize() {
         heapFile = new HeapFile<>(5000, heapFileName, heapRiadiace, new TestClass());
         ecvHash = new ExtendibleHash<>(400, ecvFileName, ecvRiadiace, new TestClassWithECVHash());
         idHash = new ExtendibleHash<>(400, idFileName, idRiadiace, new TestClassWithIDHash());
         idGenerator = 1;
-        ecvGenerator = "A";
     }
 
     public TestClass findUsingID(int idcko) {
@@ -169,12 +172,8 @@ public class Manager {
     public void insertData(int pocetData) {
         for (int i = 0; i< pocetData; i++) {
             String ecv = getNextUniqueString();
-            if (ecv.equals("AASY") || ecv.equals("AAAQ")) {
-                System.out.println("tu");
-            }
             this.insert("", "", idGenerator, ecv);
             this.idGenerator++;
-            this.ecvGenerator = ecv;
         }
     }
 
@@ -208,5 +207,52 @@ public class Manager {
         }
 
         return result.toString();
+    }
+
+    public void endApp() {
+        this.heapFile.close();
+        this.ecvHash.close();
+        this.idHash.close();
+    }
+
+    public void deleteData() {
+        this.endApp();
+        File file1 = new File(heapFileName);
+        if (file1.delete()) {
+            System.out.println("Deleted the file: " + file1.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        File file2 = new File(heapRiadiace);
+        if (file2.delete()) {
+            System.out.println("Deleted the file: " + file2.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        File file3 = new File(ecvFileName);
+        if (file3.delete()) {
+            System.out.println("Deleted the file: " + file3.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        File file4 = new File(ecvRiadiace);
+        if (file4.delete()) {
+            System.out.println("Deleted the file: " + file4.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        File file5 = new File(idFileName);
+        if (file5.delete()) {
+            System.out.println("Deleted the file: " + file5.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        File file6 = new File(idRiadiace);
+        if (file6.delete()) {
+            System.out.println("Deleted the file: " + file6.getName());
+        } else {
+            System.out.println("Failed to delete the file.");
+        }
+        this.intialize();
     }
 }

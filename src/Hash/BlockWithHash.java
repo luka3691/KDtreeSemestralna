@@ -11,8 +11,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     private int blockFactor;
     private int localDepth;
     private int pocetValidnych;
-    private int nextVolnyBlock;
-    private int predchadazajuciBlock;
     private ArrayList<T> records;
 //vytvorim si blok s jednym zaznamom a ostanymi prazndimy
 
@@ -25,8 +23,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         for (int i = 1; i < blockFactor; i++) {
             this.records.add(instanciaTriedy.createClass());
         }
-        this.nextVolnyBlock = 0;
-        this.predchadazajuciBlock = 0;
         this.localDepth = localDepth;
     }
     public BlockWithHash(byte[] blockData, int blockFactor, T data) {
@@ -64,8 +60,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
 
         try{
             hlpOutStream.writeInt(pocetValidnych);
-            hlpOutStream.writeInt(nextVolnyBlock);
-            hlpOutStream.writeInt(predchadazajuciBlock);
             hlpOutStream.writeInt(localDepth);
            for (T record : this.records)  {
                hlpOutStream.write(record.toByteArray());
@@ -90,8 +84,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
 
         try {
             this.pocetValidnych = hlpInStream.readInt();
-            this.nextVolnyBlock = hlpInStream.readInt();
-            this.predchadazajuciBlock = hlpInStream.readInt();
             this.localDepth = hlpInStream.readInt();
             for (int i = 0; i < blockFactor; i++) {
                 byte[] zaznamy = new byte[this.records.getFirst().getSize()];
@@ -122,7 +114,7 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
     @Override
     public int getSize() {
     //vracia to aky je velky blok
-        return blockFactor * this.records.getFirst().getSize() + 4 * Integer.BYTES;
+        return blockFactor * this.records.getFirst().getSize() + 2 * Integer.BYTES;
     }
 
     @Override
@@ -135,21 +127,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
         return this.records;
     }
 
-    public int getNextVolnyBlock() {
-        return nextVolnyBlock;
-    }
-
-    public void setNextVolnyBlock(int nextVolnyBlock) {
-        this.nextVolnyBlock = nextVolnyBlock;
-    }
-
-    public int getPredchadazajuciBlock() {
-        return predchadazajuciBlock;
-    }
-
-    public void setPredchadazajuciBlock(int predchadazajuciBlock) {
-        this.predchadazajuciBlock = predchadazajuciBlock;
-    }
     public int getLocalDepth() {
         return localDepth;
     }
@@ -174,8 +151,6 @@ public class BlockWithHash<T extends IDataWithHash<T>> implements IRecordWithHas
                 "blockFactor=" + blockFactor +
                 "| localDepth=" + localDepth +
                 "| pocetValidnych:" + pocetValidnych +
-                "| nextVolnyBlock:" + nextVolnyBlock +
-                "| predchadazajuciBlock=" + predchadazajuciBlock +
                 "| records=" + records.toString() +
                 '}';
     }
