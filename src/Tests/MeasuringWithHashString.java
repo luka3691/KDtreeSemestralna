@@ -1,9 +1,7 @@
 package Tests;
 
-import Hash.BlockWithHash;
 import Hash.ExtendibleHash;
-import Hash.TestClassWithECVHash;
-import Hash.TestClassWithHash;
+import Hash.HashData.TestClassWithECVHash;
 
 import java.util.ArrayList;
 import java.util.Random;

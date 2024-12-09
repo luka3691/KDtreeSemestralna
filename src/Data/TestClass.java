@@ -1,10 +1,7 @@
 package Data;
 
-import Hash.IDataWithHash;
-
 import java.io.*;
 import java.util.Arrays;
-import java.util.BitSet;
 
 public class TestClass implements IData<TestClass> {
     private String meno;

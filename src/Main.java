@@ -1,5 +1,3 @@
-import Hash.ExtendibleHash;
-import Hash.TestClassWithHash;
 import Tests.*;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or

@@ -1,9 +1,6 @@
 package Heap;
 
 import Data.IData;
-import Hash.BlockWithHash;
-import Hash.IDataWithHash;
-import Heap.Block;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -4,14 +4,13 @@ import Data.TestClass;
 import Data.TestNavstevaClass;
 
 import Hash.*;
+import Hash.HashData.TestClassWithECVHash;
+import Hash.HashData.TestClassWithIDHash;
 import Heap.Block;
 import Heap.HeapFile;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
-
 
 
 public class Manager {

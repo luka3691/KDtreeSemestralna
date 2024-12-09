@@ -3,6 +3,9 @@ package Tests;
 import Data.TestClass;
 import Data.TestNavstevaClass;
 import Hash.*;
+import Hash.HashData.TestClassWithECVHash;
+import Hash.HashData.TestClassWithHash;
+import Hash.HashData.TestClassWithIDHash;
 import Heap.Block;
 import Heap.HeapFile;
 

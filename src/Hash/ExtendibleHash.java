@@ -1,6 +1,6 @@
 package Hash;
 
-import Heap.HeapFile;
+import Hash.HashData.IDataWithHash;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,8 +33,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 this.directory = new Directory(1);
             } else {
                 this.readRiadiaceData();
-                //zatial nemam urobene naciatanie riadiacich dat do suboru
-            }
+                }
 
         } catch (IOException ex) {
 
@@ -160,63 +159,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
     private int getposlednaAdresaBloku() throws IOException {
         return  ((int)this.subor.length() / velkostCluster) ;
     }
-/*
-    //toto sa pouziva len ked sa vymaze
-    private void vlozDoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, int adresaNaUzZretazenyBlok, T data) throws IOException {
-        readBlock.setNextVolnyBlock(adresaNaUzZretazenyBlok); // zapiseme iba dalsi volny blok kedze predosli neexistuje (ja som najnovsi)
-        readBlock.setPredchadazajuciBlock(0);
-        this.subor.seek(getAdresaBloku(adresaBloku));
-        this.subor.write(padding(readBlock.toByteArray()));
-        if (adresaNaUzZretazenyBlok != 0) {
-            this.subor.seek(getAdresaBloku(adresaNaUzZretazenyBlok));
-            byte[] blok = new byte[velkostCluster];
-            this.subor.read(blok);
-            BlockWithHash<T> dalsiVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
-            dalsiVZretazeni.setPredchadazajuciBlock(adresaBloku); // zapiseme adresu na vkladany blok
-            this.subor.seek(getAdresaBloku(adresaNaUzZretazenyBlok));
-            this.subor.write(padding(dalsiVZretazeni.toByteArray()));
-        }
-        //this.adresaNaPrvyCiastocneVolnyBlok = adresaBloku;
-    }
 
-    //toto sa pouziva iba ked je plny block
-    private void odoberZoZretazenia(BlockWithHash<T> readBlock, int adresaBloku, T data) throws IOException {
-        if (readBlock.getPredchadazajuciBlock() != 0) {
-            this.subor.seek(getAdresaBloku(readBlock.getPredchadazajuciBlock()));
-            byte[] blok = new byte[velkostCluster];
-            this.subor.read(blok);
-            BlockWithHash<T> predchadzajuciVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
-            predchadzajuciVZretazeni.setNextVolnyBlock(readBlock.getNextVolnyBlock());
-            this.subor.seek(getAdresaBloku(readBlock.getPredchadazajuciBlock()));
-            this.subor.write(padding(predchadzajuciVZretazeni.toByteArray()));
-        }
-        if(readBlock.getNextVolnyBlock() != 0) {
-            this.subor.seek(getAdresaBloku(readBlock.getNextVolnyBlock()));
-            byte[] blok = new byte[velkostCluster];
-            this.subor.read(blok);
-            BlockWithHash<T> dalsiVZretazeni = new BlockWithHash<>(blok, blockFactor, data);
-
-            dalsiVZretazeni.setPredchadazajuciBlock(readBlock.getPredchadazajuciBlock());
-            this.subor.seek(getAdresaBloku(readBlock.getNextVolnyBlock()));
-            this.subor.write(padding(dalsiVZretazeni.toByteArray()));
-        }
-
-        readBlock.setNextVolnyBlock(0); // zapiseme iba dalsi volny blok kedze predosli neexistuje (ja som najnovsi)
-        readBlock.setPredchadazajuciBlock(0);
-        this.subor.seek(getAdresaBloku(adresaBloku));
-        this.subor.write(padding(readBlock.toByteArray()));
-    }
-
-
-    private void zkratBlokOdKonca() {
-        try {
-            this.subor.setLength(this.subor.length() - this.velkostCluster);
-        }catch (IOException ex) {
-
-        }
-
-    }
- */
     public T get(T dataSKlucom) {
         //vrati data podla adresy
         try {

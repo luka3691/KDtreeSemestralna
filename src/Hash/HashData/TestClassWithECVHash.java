@@ -1,12 +1,6 @@
-package Hash;
-
-import Data.IData;
+package Hash.HashData;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 import java.util.BitSet;
 
 public class TestClassWithECVHash implements IDataWithHash<TestClassWithECVHash> {

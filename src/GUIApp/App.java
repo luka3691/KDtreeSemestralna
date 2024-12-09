@@ -3,8 +3,8 @@ package GUIApp;
 import Data.TestClass;
 import Data.TestNavstevaClass;
 import Hash.BlockWithHash;
-import Hash.TestClassWithECVHash;
-import Hash.TestClassWithIDHash;
+import Hash.HashData.TestClassWithECVHash;
+import Hash.HashData.TestClassWithIDHash;
 import Heap.Block;
 
 import javax.swing.*;
@@ -15,7 +15,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class App {
 

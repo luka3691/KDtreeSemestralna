@@ -1,6 +1,5 @@
-package Hash;
+package Hash.HashData;
 
-import Data.IData;
 import Data.TestNavstevaClass;
 
 import java.io.*;

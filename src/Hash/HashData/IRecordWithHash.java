@@ -1,4 +1,4 @@
-package Hash;
+package Hash.HashData;
 
 import Data.IRecord;
 

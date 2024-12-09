@@ -2,7 +2,7 @@ package Tests;
 
 import Data.TestClass;
 import Data.TestNavstevaClass;
-import Hash.*;
+import Hash.HashData.TestClassWithHash;
 import Heap.Block;
 import Heap.HeapFile;
 

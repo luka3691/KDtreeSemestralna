@@ -1,7 +1,7 @@
 package Hash;
 
-import Data.IData;
-import Data.IRecord;
+import Hash.HashData.IDataWithHash;
+import Hash.HashData.IRecordWithHash;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -1,6 +1,6 @@
-package Hash;
+package Hash.HashData;
 
-import Data.IRecord;
+import Hash.HashData.IRecordWithHash;
 
 import java.util.BitSet;
 

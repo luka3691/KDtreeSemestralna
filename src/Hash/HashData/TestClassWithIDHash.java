@@ -1,6 +1,4 @@
-package Hash;
-
-import Data.TestNavstevaClass;
+package Hash.HashData;
 
 import java.io.*;
 import java.util.BitSet;
