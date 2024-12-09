@@ -236,7 +236,40 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         }
         return null;
     }
+    public void edit(T dataSKlucom, T dataNove) {
+        //vrati data podla adresy
+        try {
+            BitSet hash = dataSKlucom.getHash();
+            BitSet noveHash = dataNove.getHash();
+            int adresa = this.directory.getBlockAddress(hash);
+            int novaAdresa  = this.directory.getBlockAddress(noveHash);
+            if (adresa != novaAdresa) {
+                return; //kontrola ci sa nezmenil hash
+            }
+            this.subor.seek(getAdresaBloku(adresa));
+            byte[] blok = new byte[velkostCluster];
+            this.subor.read(blok);
+            T foundData = null;
+            int recordNumber = -1;
+            BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, dataSKlucom);
+            ArrayList<T> list = readBlock.getRecords();
+            for (int i = 0; i < list.size(); i++) {
+                T data = readBlock.getRecords().get(i);
+                if (dataSKlucom.ownEquals(data)) {
+                    foundData = data;
+                    recordNumber = i;
+                }
+            }
+            if (foundData != null) {
+                readBlock.removeRecord(dataSKlucom, recordNumber);
+                readBlock.insertRecord(dataNove);
+                this.subor.seek(getAdresaBloku(adresa));
+                this.subor.write(padding(readBlock.toByteArray()));
+            }
+        }catch (IOException ex) {
 
+        }
+    }
     public void close() {
         try {
             this.subor.close();
