@@ -726,7 +726,7 @@
               </grid>
             </constraints>
             <properties>
-              <text value="1000"/>
+              <text value="100"/>
             </properties>
           </component>
           <component id="cafb8" class="javax.swing.JLabel">

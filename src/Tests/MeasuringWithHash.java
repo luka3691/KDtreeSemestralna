@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class MeasuringWithHash {
     private int pocetOperacii = 400;
-    private int pocetData= 750;
+    private int pocetData= 1000;
     private
     ExtendibleHash<TestClassWithHash> testHeap;
     ExtendibleHash<TestClassWithECVHash> ecvTest;

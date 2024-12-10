@@ -5,12 +5,9 @@ import Tests.*;
 public class Main {
     public static void main(String[] args) {
 
-        MeasuringWithHashString measuring = new MeasuringWithHashString();
-        //testovanie heap file
-        //Tester tester = new Tester();
-        //tester.insertData(30);
+        //MeasuringWithHashString measuring = new MeasuringWithHashString();
 
-        //Measuring measuring = new Measuring();
+        Measuring measuring = new Measuring();
         //MeasuringWithHash measuring = new MeasuringWithHash();
         measuring.insert();
         measuring.test();

@@ -7,8 +7,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MeasuringWithHashString {
-    private int pocetOperacii = 5;
-    private int pocetData= 20;
+    private int pocetOperacii = 200;
+    private int pocetData= 1000;
     private ExtendibleHash<TestClassWithECVHash> ecvTest;
 
     ArrayList<TestClassWithECVHash> data;

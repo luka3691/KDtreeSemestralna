@@ -9,21 +9,29 @@ public class TestNavstevaClass {
     private double cena;
     private static int POPIS_MAX = 20;
     private String[] popisy;
+    private int[] validChar;
     public TestNavstevaClass(String datum, double cena, String[] popisy) {
         this.datum = LocalDate.parse(datum);
         this.cena = cena;
+        this.validChar = new int[]{0,0,0,0,0,0,0,0,0,0};
         if (popisy.length < 10) {
             String[] temp = new String[10];
             for (int i = 0; i < popisy.length; i++) {
                 temp[i] = popisy[i]; // prekopirovanie
+                validChar[i] = popisy[i].length();
             }
             for (int i = popisy.length; i < 10; i++) {
-                temp[i] = " "; // vypknenie
+                temp[i] = " "; // vyplnenie prazdnim
+
             }
             this.popisy = temp;
         } else {
             this.popisy = popisy;
+            for (int i = 0; i < popisy.length; i++) {
+                validChar[i] = popisy[i].length();
+            }
         }
+
     }
     public TestNavstevaClass() {
         this.datum = LocalDate.parse("1970-12-03");
@@ -51,7 +59,9 @@ public class TestNavstevaClass {
 
     public void insertZaznamy(String[] popisy) {
         this.popisy = popisy;
-
+        for (int i = 0; i < popisy.length; i++) {
+            validChar[i] = popisy[i].length();
+        }
     }
 
 
