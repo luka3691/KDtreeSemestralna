@@ -54,29 +54,29 @@ public class HeapFile<T extends IData<T>> {
         try {
             //davam na koniec subor
             int adresaNaVratenie;
-            if (adresaNaPrvyCiastocneVolnyBlok != 0) {
+            if (adresaNaPrvyCiastocneVolnyBlok != 0) { //existuje ciastocne volny blok
                 this.subor.seek(getAdresaBloku(adresaNaPrvyCiastocneVolnyBlok));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);
                 Block<T> readBlock = new Block<>(blok, blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = this.adresaNaPrvyCiastocneVolnyBlok;
-                if (jePlny) {
+                if (jePlny) { // blok je plny, musi sa odstranit zo zretazenia ciastocne volnych blokov
                     this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
                     this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
                 }
                 this.subor.seek(getAdresaBloku(adresaNaVratenie));
                 this.subor.write(padding(readBlock.toByteArray()));
                 return adresaNaVratenie;
-            } else if (adresaNaPrvyVolnyBlok != 0) {
+            } else if (adresaNaPrvyVolnyBlok != 0) { // existuje uplne volny blok
                 this.subor.seek(getAdresaBloku(adresaNaPrvyVolnyBlok));
                 System.out.println(blockFactor);
                 Block<T> readBlock = new Block<>(blockFactor, data);
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = this.adresaNaPrvyVolnyBlok;
                 this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
-                this.odoberZoZretazenia(readBlock, adresaNaVratenie, data);
-                if (!jePlny) {
+                this.odoberZoZretazenia(readBlock, adresaNaVratenie, data); //odoberie sa zo zretazenia volnych blokov
+                if (!jePlny) {// ak je v nom este miesto, zaradi sa do zretazenia ciastocne volnych blokov
                     this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
                     this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
                 }
@@ -84,12 +84,12 @@ public class HeapFile<T extends IData<T>> {
                 this.subor.write(padding(readBlock.toByteArray()));
 
                 return adresaNaVratenie;
-            } else {
+            } else { // neexistuje prazdny ani ciastocne volnych blok
                 this.subor.seek(this.subor.length());
-                Block<T> readBlock = new Block<>(blockFactor, data);
+                Block<T> readBlock = new Block<>(blockFactor, data); //vytvori sa novy blok
                 boolean jePlny = readBlock.insertRecord(data);
                 adresaNaVratenie = getposlednaAdresaBloku()+1;
-                if (!jePlny) {
+                if (!jePlny) { // ak nie je plny, vlozi sa do zretazenia ciastocne volnych blokov
                     this.vlozDoZretazenia(readBlock, adresaNaVratenie, this.adresaNaPrvyCiastocneVolnyBlok, data);
                     this.adresaNaPrvyCiastocneVolnyBlok = adresaNaVratenie;
                 }
@@ -129,39 +129,38 @@ public class HeapFile<T extends IData<T>> {
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
             Block<T> readBlock = new Block<>(blok, blockFactor, data);
-            int cisloRecordu = readBlock.findRecord(data);
+            int cisloRecordu = readBlock.findRecord(data); //musi sa najprv najst zaznam v bloku
             if (cisloRecordu == -1) {
                 System.out.println("Error");
                 return false;
             } else {
-                boolean jePrazdny = readBlock.removeRecord(data, cisloRecordu);
-                if (jePrazdny) {
+                boolean jePrazdny = readBlock.removeRecord(data, cisloRecordu); //odstrani sa zaznam z bloku
+                if (jePrazdny) { //ak blok ostane prazdny
                     boolean mazem = true;
                     int aktualnaAdresa = adresaBloku;
                     if (this.adresaNaPrvyCiastocneVolnyBlok == aktualnaAdresa) {
-                        this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock();
+                        this.adresaNaPrvyCiastocneVolnyBlok = readBlock.getNextVolnyBlock(); //aktualizujeme adresu na prvy ciastocne volnych blok ak bol prvy v zretazeni
                     }
-                    if (adresaBloku == getposlednaAdresaBloku()) {
-                        while (mazem) {
-                            //problematicke pretypovanie adresy0&
+                    if (adresaBloku == getposlednaAdresaBloku()) { //ak je blok na konci suboru
+                        while (mazem) { //nastava zkracovanie suboru od konca
                             aktualnaAdresa = getposlednaAdresaBloku();
-                            if (readBlock.getPocetValidnych() != 0) {
+                            if (readBlock.getPocetValidnych() != 0) { // kontrola ci je blok prazdny
                                 mazem = false;
                             } else {
-                                if (this.adresaNaPrvyVolnyBlok == aktualnaAdresa) {
+                                if (this.adresaNaPrvyVolnyBlok == aktualnaAdresa) { //aktualizujeme adresu na prvy volny blok ak bol prvy v zretazeni
                                     this.adresaNaPrvyVolnyBlok = readBlock.getNextVolnyBlock();
                                 }
-                                this.odoberZoZretazenia(readBlock, aktualnaAdresa, data);
-                                this.zkratBlokOdKonca();
+                                this.odoberZoZretazenia(readBlock, aktualnaAdresa, data); //odobere sa zo zretazenia
+                                this.zkratBlokOdKonca(); //subor sa skrati od konca
                                 this.subor.seek(getAdresaBloku(aktualnaAdresa));
                                 blok = new byte[velkostCluster];
-                                this.subor.read(blok);
+                                this.subor.read(blok); //nacita sa dalsi blok a znova v cykle sa kontroluje
                                 readBlock = new Block<>(blok, blockFactor, data);
                             }
                         }
-                    } else {
-                        this.odoberZoZretazenia(readBlock, adresaBloku, data);
-                        this.vlozDoZretazenia(readBlock, adresaBloku, this.adresaNaPrvyVolnyBlok, data);
+                    } else { //ak nie je blok na konci suboru a je prazdny
+                        this.odoberZoZretazenia(readBlock, adresaBloku, data); //odobere sa zo rrezaenia ciastocne volnych
+                        this.vlozDoZretazenia(readBlock, adresaBloku, this.adresaNaPrvyVolnyBlok, data); // vlozi sa do zetzaenia volnych blokov
                         this.adresaNaPrvyVolnyBlok = adresaBloku;
                     }
                 } else {
@@ -248,7 +247,7 @@ public class HeapFile<T extends IData<T>> {
             this.subor.read(blok);
             Block<T> readBlock = new Block<>(blok, blockFactor, dataSKlucom);
             for (T data : readBlock.getRecords()) {
-                if (dataSKlucom.ownEquals(data)) {
+                if (dataSKlucom.ownEquals(data)) { //porovanavanie, ci je to hladany zaznam podla klucoveho atributu/tov
                     return data;
                 }
             }
@@ -295,7 +294,7 @@ public class HeapFile<T extends IData<T>> {
                     recordNumber = i;
                 }
             }
-            if (foundData != null) {
+            if (foundData != null) { //odborieme povodne data z bloku a vlozime nove aktualizovane
                 readBlock.removeRecord(originalDataSKlucom, recordNumber);
                 readBlock.insertRecord(noveDataSKlucom);
                 this.subor.seek(getAdresaBloku(adresaBloku));

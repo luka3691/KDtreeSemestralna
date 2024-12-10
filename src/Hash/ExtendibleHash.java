@@ -72,7 +72,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                 BitSet hash = record.getHash();
                 BitSet prefix = hash.get(0, directory.getGlobalDepth());
                 int adresa = directory.getBlockAddress(prefix);
-                if (adresa == -1) {
+                if (adresa == -1) { // ak blok neeexistuje, tak sa vytvori novy a vlozi sa tam zaznam
                     BlockWithHash<T> readBlock = new BlockWithHash<>( blockFactor, 1, record);
                     readBlock.insertRecord(record);
                     int adresaNaVratenie = getposlednaAdresaBloku();
@@ -85,12 +85,12 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
                     byte[] blok = new byte[velkostCluster];
                     this.subor.read(blok);
                     BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, record);
-                    if (readBlock.isFull()) {
+                    if (readBlock.isFull()) { //ak je blok plny
                         if (readBlock.getLocalDepth() == directory.getGlobalDepth()) {
-                            directory.doubleDirectory();
+                            directory.doubleDirectory(); // ak sme dosiahli globalnu hlbku a potrebujem dalsie bloky, tak musime zdvojansobit adresar
                         }
-                        splitBlock(readBlock, prefix, adresa);
-                    } else {
+                        splitBlock(readBlock, prefix, adresa); // slitovanie bloku do dvoch novych
+                    } else {//ak nie je blok plny tak sa iba vlozi zaznam do bloku
                         readBlock.insertRecord(record);
                         this.subor.seek(getAdresaBloku(adresa));
                         this.subor.write(padding(readBlock.toByteArray()));
@@ -110,31 +110,31 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         try {
             int localDepth = block.getLocalDepth();
             block.incrementDepth();
-
+            //v povodnom bloku inkrementujeme hlbku a vytvorime novy blok tiez s uz inkrementovanou hlbkou
             BlockWithHash<T> newBlock = new BlockWithHash<T>(blockFactor, localDepth + 1, block.getRecords().getFirst().createClass());
-            List<T> recordsToRedistribute = new ArrayList<>(block.getRecords());
-            block.clearRecords();
+            List<T> recordsToRedistribute = new ArrayList<>(block.getRecords()); // ziskame records z povodneho bloku
+            block.clearRecords(); //vymazanie zaznamov z bloku
             BitSet originalPrefix = prefix.get(0, localDepth);
             for (T record : recordsToRedistribute) {
                 BitSet hash = record.getHash();
                 BitSet newPrefix = hash.get(0, localDepth + 1);
-                if (originalPrefix.equals(newPrefix)) {
+                if (originalPrefix.equals(newPrefix)) { //ak sa novy vacsi bitset zhoduje s povodnym (nezmenil sa), tak sa vlozi do povodneho bloku
                     block.insertRecord(record);
                 } else {
                     newBlock.insertRecord(record);
                 }
             }
 
-            this.subor.seek(getAdresaBloku(adresa));
+            this.subor.seek(getAdresaBloku(adresa)); //zapis povodneho bloku
             this.subor.write(padding(block.toByteArray()));
 // Update directory pointers
-            this.directory.setBlockAddress(originalPrefix, adresa);
-            if (!newBlock.isEmpty()) {
+            this.directory.setBlockAddress(originalPrefix, adresa); //aktualizovanie indexu v adresari s novou hlbkou
+            if (!newBlock.isEmpty()) { //ak nie je v novom bloku record, tak sa novy blok nevytvori ani nezapise do directory (takto nebudu na konci suboru prazdne bloky)
                 int adresaNaVratenie = this.getposlednaAdresaBloku();
                 this.subor.seek(getAdresaBloku(adresaNaVratenie));
                 this.subor.write(padding(newBlock.toByteArray()));
                 BitSet newPrefix = (BitSet) prefix.clone();
-                newPrefix.set(localDepth); // Flip the next significant bit
+                newPrefix.set(localDepth); // nastavenie najvvacsieho bitu na 1
                 this.directory.setBlockAddress(newPrefix, adresaNaVratenie);
             }
 
@@ -165,12 +165,12 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         try {
             BitSet hash = dataSKlucom.getHash();
             int adresa = this.directory.getBlockAddress(hash);
-            this.subor.seek(getAdresaBloku(adresa));
+            this.subor.seek(getAdresaBloku(adresa));  //vyhladanie bloku podla adresy najdenej v adresari pomocou hash
             byte[] blok = new byte[velkostCluster];
             this.subor.read(blok);
             BlockWithHash<T> readBlock = new BlockWithHash<>(blok, blockFactor, dataSKlucom);
             for (T data : readBlock.getRecords()) {
-                if (dataSKlucom.ownEquals(data)) {
+                if (dataSKlucom.ownEquals(data)) { // porovnanvanie, ci je to to co hladame
                     return data;
                 }
             }
@@ -240,7 +240,7 @@ public class ExtendibleHash<T extends IDataWithHash<T>> {
         ArrayList<BlockWithHash<T>> list = new ArrayList<>();
         try {
             int maxAdresa = this.getposlednaAdresaBloku();
-            for (int i = 0; i < maxAdresa; i++) {
+            for (int i = 0; i < maxAdresa; i++) { // prechadaznie všetkých blokov v súbore a ukladanie ich do arraylistu
                 this.subor.seek(getAdresaBloku(i));
                 byte[] blok = new byte[velkostCluster];
                 this.subor.read(blok);

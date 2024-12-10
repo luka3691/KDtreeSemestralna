@@ -56,6 +56,7 @@ public class Manager {
 
     public void insert(String meno, String priezvisko, int id, String ecv) {
         if (ecvHash.get(new TestClassWithECVHash(0, ecv, 0)) == null && idHash.get(new TestClassWithIDHash(0, id)) == null) {
+            //vlozime do vsetkych troch suborov
             TestClass data = new TestClass(meno, priezvisko, id, ecv, new TestNavstevaClass[]{});
             int cisloBlokuData = heapFile.insert(data);
             TestClassWithECVHash ecvData = new TestClassWithECVHash(cisloBlokuData, ecv, id);
@@ -135,6 +136,7 @@ public class Manager {
         existing.setPriezvisko(priezvisko);
         heapFile.edit(idData.getAdresa(), existing, existing);
     }
+    /*
     private static String getNextString(String current) {
         if (current.isEmpty()) {
             return String.valueOf(CHAR_POOL[0]);
@@ -159,6 +161,8 @@ public class Manager {
         return result.toString();
     }
 
+
+
     private static int findCharIndex(char c) {
         for (int i = 0; i < BASE; i++) {
             if (CHAR_POOL[i] == c) {
@@ -167,6 +171,8 @@ public class Manager {
         }
         throw new IllegalArgumentException("Nansiel sa znak v poole: " + c);
     }
+
+     */
 
     public void insertData(int pocetData) {
         for (int i = 0; i< pocetData; i++) {
