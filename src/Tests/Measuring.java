@@ -2,6 +2,7 @@ package Tests;
 
 import Data.IData;
 import Data.TestClass;
+import Data.TestNavstevaClass;
 import Heap.HeapFile;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class Measuring {
         //System.out.println("Pocet vlozenych dat:" + pocetOperacii+ ". Počet dát v strome:" + this.tree.numberOfData());
     }
     private void createData() {
-        TestClass test = new TestClass(); //dopnit ked testovat
+        TestClass test = new TestClass("L", "F", id, "FF", new TestNavstevaClass[]{new TestNavstevaClass()}); //dopnit ked testovat
         int returnAdresa = this.testHeap.insert(test);
         if (returnAdresa < 1) {
             System.out.println("Error pri inserte");
