@@ -10,7 +10,7 @@ import java.util.Random;
 
 public class Measuring {
     private int pocetOperacii = 200;
-    private int pocetData= 500;
+    private int pocetData= 1000;
     private
     HeapFile<TestClass> testHeap;
     ArrayList<Pair<TestClass>> data;
@@ -20,7 +20,7 @@ public class Measuring {
         TestClass test = new TestClass();
         this.testHeap = new HeapFile<>(5000, "Data.bin", "Riadiace.bin", test);
         this.data = new ArrayList<>();
-        random = new Random(1);
+        random = new Random();
         id = 0;
     }
 
